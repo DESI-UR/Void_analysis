@@ -1,6 +1,6 @@
-# Legacy VoidFinder implementation(s)
+# Legacy VoidFinder implementations
 
-In this directory lives the old version of VoidFinder written in Fortran, as well as an old
+In this directory lives the old version of VoidFinder written in Fortran and C++, as well as an old
 python version.
 
 ## Fortran
