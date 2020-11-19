@@ -15,7 +15,7 @@ The `profiling` directory contains an iPython notebook written to visualize the 
 
 ## scripts
 
-The `scripts` directory contains various python scripts, primarily for running VoidFinder.  These are essentially copies of the sample `SDSS_VoidFinder.py` script provided with VAST that have been customized for other surveys.
+The `scripts` directory contains various python scripts, primarily for running VoidFinder.  These are essentially copies of the sample `SDSS_VoidFinder_dr7.py` script provided with VAST that have been customized for other surveys.
 
 
 ## VoidFinder legacy
