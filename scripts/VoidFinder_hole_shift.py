@@ -18,9 +18,9 @@
 ################################################################################
 
 
-#import sys
-#sys.path.insert(1, '/home/oneills2/VoidFinder/python/')
-#sys.path.insert(1, '/Users/kellydouglass/Documents/Research/VoidFinder/python/')
+import sys
+
+sys.path.insert(1, '/home/ddunham7/Voids/VoidFinder/python/')
 
 ################################################################################
 #
@@ -28,11 +28,11 @@
 #
 ################################################################################
 
-from vast.voidfinder import find_voids, filter_galaxies
+from voidfinder import find_voids, filter_galaxies
 
-from vast.voidfinder.multizmask import generate_mask
-from vast.voidfinder.preprocessing import file_preprocess
-from vast.voidfinder.table_functions import to_vector, to_array
+from voidfinder.multizmask import generate_mask
+from voidfinder.preprocessing import file_preprocess
+from voidfinder.table_functions import to_vector, to_array
 
 from astropy.table import Table
 import pickle
@@ -54,15 +54,15 @@ import numpy as np
 num_cpus = 1
 
 #-------------------------------------------------------------------------------
-survey_name = 'kias_LOWZ_'
+survey_name = 'SDSS_dr7_'
 
 # File header
-in_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/'
-out_directory = '/Users/kellydouglass/Documents/Research/Voids/void_catalogs/SDSS/python_implementation/'
 
+in_directory = '/home/ddunham7/Voids/VoidFinder/python/voidfinder/'
+out_directory = '/home/ddunham7/MyFiles/HoleShift/'
 
 # Input file name
-galaxies_filename = 'kias1033_5_LOWZ.txt'  # File format: RA, dec, redshift, comoving distance, absolute magnitude
+galaxies_filename = 'dr7Data.dat'  # File format: RA, dec, redshift, comoving distance, absolute magnitude
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -70,27 +70,26 @@ galaxies_filename = 'kias1033_5_LOWZ.txt'  # File format: RA, dec, redshift, com
 # Note: These can be set to None, in which case VoidFinder will use the limits 
 # of the galaxy catalog.
 min_z = 0
-max_z = 0.109
+max_z = 0.1026
 
 # Cosmology (uncomment and change values to change cosmology)
 # Need to also uncomment relevent inputs in function calls below
-Omega_M = 0.26
+#Omega_M = 0.3
 #h = 1
 
 # Uncomment if you do NOT want to use comoving distances
 # Need to also uncomment relevent inputs in function calls below
-dist_metric = 'comoving'
+#dist_metric = 'redshift'
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 # Uncomment if you do NOT want to remove galaxies with Mr > -20
-# Need to also uncomment relevent input in function calls below
+# Need to also uncomment relevent input in function call below
 #mag_cut = False
-magnitude_limit = -20
 
 
 # Uncomment if you do NOT want to remove isolated galaxies
-# Need to also uncomment relevent input in function calls below
+# Need to also uncomment relevent input in function call below
 #rm_isolated = False
 #-------------------------------------------------------------------------------
 
@@ -108,10 +107,10 @@ galaxy_data_table, dist_limits, out1_filename, out2_filename = file_preprocess(g
                                                                                out_directory, 
                                                                                #mag_cut=mag_cut,
                                                                                #rm_isolated=rm_isolated,
-                                                                               dist_metric=dist_metric,
+                                                                               #dist_metric=dist_metric,
                                                                                min_z=min_z, 
                                                                                max_z=max_z,
-                                                                               Omega_M=Omega_M,
+                                                                               #Omega_M=Omega_M,
                                                                                #h=h,
                                                                                verbose=1)
 
@@ -123,7 +122,7 @@ print("Dist limits: ", dist_limits)
 #
 ################################################################################
 
-mask, mask_resolution = generate_mask(galaxy_data_table, smooth_mask=True)
+mask, mask_resolution = generate_mask(galaxy_data_table, verbose=1, smooth_mask=True)
 
 
 temp_outfile = open(out_directory + survey_name + 'mask.pickle', 'wb')
@@ -140,18 +139,15 @@ temp_infile = open(out_directory + survey_name + 'mask.pickle', 'rb')
 mask, mask_resolution = pickle.load(temp_infile)
 temp_infile.close()
 
-wall_coords_xyz, field_coords_xyz, hole_grid_shape, coords_min = filter_galaxies(galaxy_data_table,
-                                                                                 survey_name,
-                                                                                 dist_limits=dist_limits,
-                                                                                 #mag_cut_flag=mag_cut,
-                                                                                 #rm_isolated_flag=rm_isolated,
-                                                                                 #hole_grid_edge_length=5.0,
-                                                                                 distance_metric=dist_metric,
-                                                                                 #h=h,
-                                                                                 magnitude_limit=magnitude_limit,
-                                                                                 verbose=1)
 
-del galaxy_data_table
+wall_coords_xyz, field_coords_xyz, hole_grid_shape, coords_min = filter_galaxies(galaxy_data_table,
+                                                                                   survey_name,
+                                                                                   #distance_metric=dist_metric,
+                                                                                   #h=h,
+                                                                                   verbose=1,
+                                                                                   hole_grid_edge_length=5.0)
+
+#del galaxy_data_table
 
 
 temp_outfile = open(survey_name + "filter_galaxies_output.pickle", 'wb')
@@ -171,28 +167,37 @@ temp_infile = open(survey_name + "filter_galaxies_output.pickle", 'rb')
 wall_coords_xyz, field_coords_xyz, hole_grid_shape, coords_min = pickle.load(temp_infile)
 temp_infile.close()
 
+out1_filename = out1_filename[:-4] + '_hole_shift_' + '.txt'
+out2_filename = out2_filename[:-4] + '_hole_shift_' + '.txt'
 
+hole_shift = [0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.0, 3.0, 4.0, 5.0]
+holeshift = ['001', '005', '01', '02', '03', '04', '05', '06', '07', '08', '09', '1', '2', '3', '4', '5']
+print('sizes are: ',len(hole_shift), len(holeshift))
 
-find_voids(wall_coords_xyz, 
-           dist_limits,
-           mask, 
-           mask_resolution,
-           coords_min,
-           hole_grid_shape,
-           survey_name,
-           #save_after=50000,
-           #use_start_checkpoint=True,
-           #hole_grid_edge_length=5.0,
-           #galaxy_map_grid_edge_length=None,
-           #hole_center_iter_dist=1.0,
-           maximal_spheres_filename=out1_filename,
-           void_table_filename=out2_filename,
-           potential_voids_filename=survey_name+'potential_voids_list.txt',
-           num_cpus=num_cpus,
-           batch_size=10000,
-           verbose=1,
-           print_after=5.0)
+for a in range(len(holeshift)):
+	Out1_Filename = out1_filename[:-4] + holeshift[a] + '.txt'
+	Out2_Filename = out2_filename[:-4] + holeshift[a] + '.txt'
 
+	find_voids(wall_coords_xyz, 
+          	   dist_limits,
+	           mask, 
+	           mask_resolution,
+	           coords_min,
+	           hole_grid_shape,
+	           survey_name,
+	           #save_after=50000,
+	           #use_start_checkpoint=True,
+	           hole_grid_edge_length=5.0,
+	           galaxy_map_grid_edge_length=None,
+	           hole_center_iter_dist=hole_shift[a],
+	           maximal_spheres_filename=Out1_Filename,
+	           void_table_filename=Out2_Filename,
+	           potential_voids_filename=survey_name+'potential_voids_list.txt',
+	           num_cpus=num_cpus,
+	           batch_size=10000,
+	           verbose=1,
+	           print_after=5.0)
+	
 
 
 
