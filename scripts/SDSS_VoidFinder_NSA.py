@@ -54,15 +54,15 @@ import numpy as np
 num_cpus = 1
 
 #-------------------------------------------------------------------------------
-survey_name = 'kias1033_5_main_'
+survey_name = 'NSA_main_'
 
 # File header
-in_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/'
+in_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/dr7/'
 out_directory = '/Users/kellydouglass/Documents/Research/Voids/void_catalogs/SDSS/python_implementation/'
 
 
 # Input file name
-galaxies_filename = 'kias1033_5_MPAJHU_ZdustOS_main.txt'  # File format: RA, dec, redshift, comoving distance, absolute magnitude
+galaxies_filename = 'nsa_v1_0_1_main.txt'  # File format: RA, dec, redshift, comoving distance, absolute magnitude
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------

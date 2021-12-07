@@ -7,7 +7,7 @@
 ################################################################################
 
 
-from vast.voidfinder.viz import VoidRender, load_hole_data, load_galaxy_data
+from vast.voidfinder.viz import VoidRender, load_void_data, load_galaxy_data
 
 import numpy as np
 
@@ -20,7 +20,7 @@ from vispy.color import Colormap
 #
 ################################################################################
 
-holes_xyz, holes_radii, holes_flags = load_hole_data('../../void_catalogs/SDSS/python_implementation/kias1033_5_MPAJHU_ZdustOS_main_comoving_holes.txt')
+holes_xyz, holes_radii, holes_flags = load_void_data('../../void_catalogs/SDSS/python_implementation/kias1033_5_MPAJHU_ZdustOS_main_comoving_holes.txt')
 #holes_xyz, holes_radii, holes_flags = load_hole_data("../../data/SDSS/vollim_dr7_cbp_102709_comoving_holes.txt")
 #holes_xyz, holes_radii, holes_flags = load_hole_data("../../data/SDSS/vollim_dr7_cbp_102709_holes.txt")
 
