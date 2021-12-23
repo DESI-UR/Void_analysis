@@ -256,12 +256,14 @@ def point_query(point_coords, void_cat, vf, prune=None):
 ################################################################################
 # Generate grid of points
 #-------------------------------------------------------------------------------
-xmin, xmax, ymin, ymax, zmin, zmax = calc_volume_boundaries(data_table_NSA, 
-                                                            data_table_vl)
+print('Generating grid points')
+start_time = time.time()
+
+xmin, xmax, ymin, ymax, zmin, zmax = calc_volume_boundaries(VF_table, V2_table)
 
 pts = generate_grid_points(xmin, xmax, ymin, ymax, zmin, zmax)
 
-b = pts.shape
+print('Generated grid points', time.time() - start_time)
 ################################################################################
 
 
@@ -270,7 +272,8 @@ b = pts.shape
 ################################################################################
 # Filter out all the points outside the survey
 #-------------------------------------------------------------------------------
-#start_time = time.time()
+print('Removing points outside survey')
+start_time = time.time()
 
 rmin = 0
 rmax = 332.38565
@@ -285,6 +288,8 @@ for i in range(pts.shape[1]):
                                     rmax)        
 
 points_in_survey = pts[:,~points_boolean]
+
+print('Removed points outside survey', time.time() - start_time)
 ################################################################################
 
 
@@ -293,6 +298,9 @@ points_in_survey = pts[:,~points_boolean]
 ################################################################################
 # Remove all points that are within 10 Mpc/h of the survey bounds
 #-------------------------------------------------------------------------------
+print('Removing edge points')
+start_time = time.time()
+
 coords_min = points_in_survey - 10
 coords_max = points_in_survey + 10
 
@@ -330,6 +338,8 @@ for i in range(points_in_survey.shape[1]):
 points_in_mask = points_in_survey[:,~pts_boolean]
 
 (var, n_points) = points_in_mask.shape
+
+print('Removed edge points', time.time() - start_time)
 ################################################################################
 
 
