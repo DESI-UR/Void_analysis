@@ -7,14 +7,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from scipy.stats import norm, skewnorm, ks_2samp
-from scipy.integrate import trapz, cumtrapz
-from scipy.interpolate import PchipInterpolator
+from scipy.integrate import trapz
 from scipy.special import gammaln
 from scipy.optimize import minimize
-
-# import numdifftools as ndt
-
-from astropy.io import ascii
 
 import dynesty
 from dynesty import plotting as dyplot
@@ -407,7 +402,7 @@ def nlogLjoint2_skew(params, m, n, x, peaks):
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def Model_1_fit(bounds1, data1, data2, bins_, peaks):
+def Model_1_fit(bounds1, data1, data2, bins_, peaks, p0=None):
     '''
     Find the maximum likelihood parameters of model M1 (one-parent model) by 
     minimizing -ln(L).  Performs a bounded fit using the L-BFGS-B algorithm by 
@@ -431,6 +426,11 @@ def Model_1_fit(bounds1, data1, data2, bins_, peaks):
     peaks : integer
         Number of peaks in the parent model
 
+    p0 : list of floats
+        Initial guesses at which to start minimize.  If none are given, then 
+        minimize will be seeded with random values uniformly generated from 
+        within the bounds.
+
 
     RETURNS
     =======
@@ -444,28 +444,36 @@ def Model_1_fit(bounds1, data1, data2, bins_, peaks):
     
     print("running minimizer...this might take a few minutes...")
 
-    bestfit1 = None
+    if p0 is not None:
+        bestfit1 = minimize(nlogLjoint1_skew, 
+                            p0, 
+                            method='L-BFGS-B', 
+                            args=(n1, n2, x, peaks), 
+                            bounds=bounds1)
 
-    for i in range(30):
+    else:
+        bestfit1 = None
 
-        p0 = [np.random.uniform(b[0], b[1]) for b in bounds1]
+        for i in range(30):
 
-        result = minimize(nlogLjoint1_skew, 
-                          p0, 
-                          method='L-BFGS-B', 
-                          args=(n1, n2, x, peaks), 
-                          bounds=bounds1)
+            p0 = [np.random.uniform(b[0], b[1]) for b in bounds1]
 
-        if result.success:
-#             print(p0)
-#             print('  {:.2f}'.format(result.fun))
+            result = minimize(nlogLjoint1_skew, 
+                              p0, 
+                              method='L-BFGS-B', 
+                              args=(n1, n2, x, peaks), 
+                              bounds=bounds1)
 
-            if bestfit1 is None:
-                bestfit1 = result
+            if result.success:
+    #             print(p0)
+    #             print('  {:.2f}'.format(result.fun))
 
-            else:
-                if result.fun < bestfit1.fun:
+                if bestfit1 is None:
                     bestfit1 = result
+
+                else:
+                    if result.fun < bestfit1.fun:
+                        bestfit1 = result
     '''
     print("best fit parameters",bestfit1)
     fig, axes = plt.subplots(2,2, figsize=(10,5), sharex=True,
@@ -719,7 +727,7 @@ def Model_1_output(data1,data2,bins_,label,sampler_results='sampler_results_mode
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def Model_2_fit(bounds2, data1, data2, bins_, peaks):
+def Model_2_fit(bounds2, data1, data2, bins_, peaks, p0=None):
     '''
     Find the maximum likelihood parameters of model M2 (two-parent model) by 
     minimizing -ln(L).  Performs a bounded fit using the L-BFGS-B algorithm by 
@@ -743,6 +751,11 @@ def Model_2_fit(bounds2, data1, data2, bins_, peaks):
     peaks : integer
         Number of peaks in the parent model
 
+    p0 : list of floats
+        Initial guesses at which to start minimize.  If none are given, then 
+        minimize will be seeded with random values uniformly generated from 
+        within the bounds.
+
 
     RETURNS
     =======
@@ -756,26 +769,34 @@ def Model_2_fit(bounds2, data1, data2, bins_, peaks):
 
     print("running minimizer...this might take a few minutes...")
 
-    bestfit2 = None
+    if p0 is not None:
+        bestfit2 = minimize(nlogLjoint2_skew, 
+                            p0, 
+                            method='L-BFGS-B', 
+                            args=(n1, n2, x, peaks), 
+                            bounds=bounds2)
 
-    for i in range(30):
+    else:
+        bestfit2 = None
 
-        p0 = [np.random.uniform(b[0], b[1]) for b in bounds2]
+        for i in range(30):
 
-        result = minimize(nlogLjoint2_skew, 
-                          p0, 
-                          method='L-BFGS-B', 
-                          args=(n1, n2, x, peaks), 
-                          bounds=bounds2)
+            p0 = [np.random.uniform(b[0], b[1]) for b in bounds2]
 
-        if result.success:
-#             print(p0)
-#             print('  {:.2f}'.format(result.fun))
-            if bestfit2 is None:
-                bestfit2 = result
-            else:
-                if result.fun < bestfit2.fun:
+            result = minimize(nlogLjoint2_skew, 
+                              p0, 
+                              method='L-BFGS-B', 
+                              args=(n1, n2, x, peaks), 
+                              bounds=bounds2)
+
+            if result.success:
+    #             print(p0)
+    #             print('  {:.2f}'.format(result.fun))
+                if bestfit2 is None:
                     bestfit2 = result
+                else:
+                    if result.fun < bestfit2.fun:
+                        bestfit2 = result
     '''
     print(result.hess_inv)
     print("plotting best fit results...")
@@ -816,7 +837,7 @@ def Model_2_fit(bounds2, data1, data2, bins_, peaks):
 
     fig.savefig('model2_fit_'+label+'.png', dpi=100)
     '''
-    return result
+    return bestfit2
 ################################################################################
 
 
