@@ -971,78 +971,57 @@ def Model_2_sampler(prior_, data1, data2, bins_, peaks, fname_suffix=''):
 
 
 
-def Model2_output(data1,data2,bins_,label,sampler_results='sampler_results_model2_'):
+################################################################################
+#-------------------------------------------------------------------------------
+def estimate_Jacobian(f, x, params):
     '''
-    sampler_results: path of pickle file where sampler results are saved
-    '''
-    x,n1,n2,dn1,dn2 = bin_data(data1,data2,bins_,label)
-
-    with open(sampler_results+label, 'rb') as dres2_file:
-        dres2 = pickle.load(dres2_file)
+    Numerically estimate the Jacobian array (array of partial first derivatives) of the 
+    function f at x for each of the function's parameters.
+    
+    (Apparently, I need to write this myself because it is not included in any of the 
+    normal Python packages...)
+    
+    
+    PARAMETERS
+    ==========
+    
+    f : executable function
+        Function of which to calculate partial first derivatives.  Should take x as the 
+        first argument and params as the remaining ones.
         
-    print("plotting corner plots...")
-    labels = [r'$\alpha$', r'$\mu_\alpha$', r'$\sigma_\alpha$', r'$\xi_\alpha$',
-              r'$\beta$',  r'$\mu_\beta$',  r'$\sigma_\beta$',  r'$\xi_\beta$',
-              r'$\gamma$',  r'$\mu_\gamma$',  r'$\sigma_\gamma$',  r'$\xi_\gamma$',
-              r'$\delta$',  r'$\mu_\delta$',  r'$\sigma_\delta$',  r'$\xi_\delta$']
-
-    fig, axes = dyplot.cornerplot(dres2, smooth=0.03,
-                                  labels=labels,
-                                  show_titles=True,
-                                  quantiles_2d=[1-np.exp(-0.5*r**2) for r in [1.,2.,3]],
-                                  quantiles=[0.16, 0.5, 0.84],
-                                  fig=plt.subplots(16, 16, figsize=(2.5*16,2.6*16)),
-                                  color='#1f77d4')
-
-    fig.savefig('corner_model2_'+label+'.png', dpi=100)
+    x : float
+        Position in f(x) at which to estimate first partial derivatives.
+        
+    params : list or ndarray of shape (N,) or (,N)
+        Values for each of the parameters of f around which to estimate the partial 
+        derivatives.
+        
     
+    RETURNS
+    =======
     
-    mapvals2 = np.zeros(16, dtype=float)
-    for i in range(16):
-        x16, x50, x84 = dynesty.utils.quantile(dres2.samples[:,i],
-                                               np.asarray([0.16, 0.5, 0.84]))
-        mapvals2[i] = x50
-    print("The maximum a posteriori (MAP) values of the parameters: ",mapvals2)
+    J : ndarray of shape (N,)
+        Values of the partial first derivatives for each param at f(x).
+    '''
     
-    print("Best fit results: ")
-    fig, axes = plt.subplots(2,2, figsize=(10,5), sharex=True,
-                             gridspec_kw={'height_ratios':[3,1], 'hspace':0},
-                             tight_layout=True)
-
-    ax = axes[0,0]
-    ep = ax.errorbar(x, n1, yerr=dn1, fmt='.', alpha=0.5)
-    ax.plot(x, mixturemodel_skew(mapvals2[:8], x), color=ep[0].get_color(), label='data set 1')
-    ax.set(ylabel='count',
-           title=r'$\mathcal{M}_2$ (Skew normal model)')
-    ax.grid(ls=':')
-    ax.legend(fontsize=10)
-
-    ax = axes[1,0]
-    ax.errorbar(x, n1 - mixturemodel_skew(mapvals2[:8], x), yerr=dn1, fmt='.')
-    ax.grid(ls=':')
-
-    ax.set(#xlim=(0, 4),
-           xlabel=label,)
-           #ylim=(-750,750))
-
-    ax = axes[0,1]
-    ep = ax.errorbar(x, n2, yerr=dn1, fmt='.', color='#ff7f0e', alpha=0.5);
-    ax.plot(x, mixturemodel_skew(mapvals2[8:], x), color=ep[0].get_color(), label='data set 2')
-    ax.grid(ls=':')
-    ax.set(title='Parameter MAP values')
-    ax.legend(fontsize=10)
-
-    ax = axes[1,1]
-    ax.errorbar(x, n2 - mixturemodel_skew(mapvals2[8:], x), yerr=dn2, fmt='.', color='#ff7f0e')
-    ax.grid(ls=':')
-
-    ax.set(#xlim=(0, 4),
-           xlabel=label,)
-           #ylim=(-275,275))
-
-    fig.savefig('map_model2_'+label+'.png', dpi=100)
+    # Number of parameters
+    N = len(params)
     
-    lnZ2 = dres2.logz[-1]
-    print("Bayesian Evidence for model 2 : ", lnZ2)
+    # Initialize the Jacobian array
+    J = np.zeros(N, dtype=float)
     
-    return lnZ2
+    # Define epsilon
+    eps = np.sqrt(np.finfo(float).eps)
+    
+    for i in range(N):
+        
+        # Adjust the ith parameter by epsilon
+        eps_adjust = np.zeros(N, dtype=float)
+        eps_adjust[i] = eps
+        params_eps = params + eps_adjust
+        
+        # Estimate the first derivative for the ith parameter in f(x)
+        J[i] = (f(x, *params_eps) - f(x, *params))/eps
+        
+    return J
+################################################################################
