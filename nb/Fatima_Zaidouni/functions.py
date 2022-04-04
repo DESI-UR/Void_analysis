@@ -19,6 +19,113 @@ import pickle
 
 
 
+
+
+################################################################################
+# General plot formatting
+#-------------------------------------------------------------------------------
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["mathtext.fontset"] = "dejavuserif"
+################################################################################
+
+
+
+
+
+################################################################################
+#-------------------------------------------------------------------------------
+def depth_plot(VF, VF_err, 
+               full, full_err, 
+               V2, V2_err, 
+               r_limits, 
+               fillbetween=False, 
+               y_label='', 
+               filename=None):
+    '''
+    Plot the galaxy property trend as a function of depth within a V2 void.
+    
+    
+    PARAMETERS
+    ==========
+    
+    VF, VF_err : floats
+        The value (and uncertainty) of the property for VoidFinder void 
+        galaxies.
+        
+    full, full_err : floats
+        The value (and uncertainty) of the property for all the galaxies in the 
+        sample.
+    
+    V2, V2_err : lists or ndarrays of shape (n,)
+        The values (and uncertainties) of the property for V2 void galaxies as 
+        a function of distance from the edge of the void.
+        
+    r_limits : list or ndarray of shape (n,)
+        The values of the depth limit for each slice of the V2 void galaxies.
+        
+    fillbetween : boolean
+        Determines whether to plot the uncertainties for V2 as a filled-in 
+        region around the data points (True) or as individual error bars 
+        (False).  Default value is False.
+        
+    y_label : string
+        Label for the y-axis.  Default is nothing.
+        
+    filename : string
+        Name of the image file if it is to be saved.  Default is None (do not 
+        save).
+    '''
+    
+    fig = plt.figure(figsize=(10,6), tight_layout=True)
+
+    # VoidFinder
+    plt.fill_between([-0.1, 0.55], 
+                     [VF + VF_err], 
+                     [VF - VF_err], 
+                     color='mistyrose')
+    plt.hlines(VF, -0.1, 0.55, colors='r', linestyle='dotted', linewidth=2, label='VoidFinder void')
+
+    # All
+    plt.fill_between([-0.1, 0.55], 
+                     [full + full_err], 
+                     [full - full_err], 
+                     color='gainsboro')
+    plt.hlines(full, -0.1, 0.55, colors='k', linewidth=2, label='SDSS DR7')
+
+    # V2
+    if fillbetween:
+        plt.plot(r_limits, V2, '.', color='crimson', markersize=10, label='V$^2$ void')
+        plt.fill_between([0.55, *r_limits, -0.05],  
+                         np.array([V2[0], *V2, V2[-1]]) + np.array([V2_err[0], *V2_err, V2_err[-1]]), 
+                         np.array([V2[0], *V2, V2[-1]]) - np.array([V2_err[0], *V2_err, V2_err[-1]]), 
+                         color='crimson', 
+                         alpha=0.1)
+    else:
+        plt.errorbar(r_limits, 
+                     V2, 
+                     yerr=V2_err, 
+                     fmt='x', 
+                     color='crimson', 
+                     markersize=10, 
+                     label='V$^2$ void')
+    
+    plt.xlabel('Normalized distance to the void boundary', fontsize=24)
+    plt.ylabel(y_label, fontsize=24)
+
+    plt.xlim(0.55, -0.05)
+    #plt.ylim(0.8, 1.7)
+
+    plt.legend(fontsize=18)
+
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    
+    if filename is not None:
+        fig.savefig('figures/' + filename + '.eps', format='eps', dpi=300)
+################################################################################
+
+
+
     
 def remove_nan(array):
     return array[np.logical_not(np.isnan(array))]
