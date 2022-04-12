@@ -76,7 +76,7 @@ def depth_plot(VF, VF_err,
         save).
     '''
     
-    fig = plt.figure(figsize=(10,6), tight_layout=True)
+    plt.figure(figsize=(10,6), tight_layout=True)
 
     # VoidFinder
     plt.fill_between([-0.1, 0.55], 
@@ -121,7 +121,7 @@ def depth_plot(VF, VF_err,
     plt.yticks(fontsize=20)
     
     if filename is not None:
-        fig.savefig('figures/' + filename + '.eps', format='eps', dpi=300)
+        plt.savefig('figures/' + filename + '.png', format='png', dpi=300)
 ################################################################################
 
 
