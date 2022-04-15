@@ -183,7 +183,7 @@ def cint2(dec, vfr2, vfdec2):
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def gcp2():
+def gcp2(s, ra, Cr, npc, chkdpth):
     '''
     Convert circles' coordinates to ordered boundary
 
@@ -191,25 +191,28 @@ def gcp2():
     PARAMETERS
     ==========
 
-    cc1 : 
+    s : list of floats
+        Comoving distance to center of circles
 
-    cc2 : 
+    ra : list of floats
+        ra of center of circles
 
-    crad : 
+    Cr : list of floats
+        Radii of circles in void that intersect with declination slice
 
     npt : 
 
     chkdpth : 
     '''
 
-    ccx = cc1*np.cos(cc2*D2R)
-    ccy = cc1*np.sin(cc2*D2R)
+    ccx = s*np.cos(ra*D2R)
+    ccy = s*np.sin(ra*D2R)
 
-    Cx = [np.linspace(0, 2*np.pi, int(npt*crad[k]/10)) for k in range(len(ccx))]
-    Cy = [np.linspace(0, 2*np.pi, int(npt*crad[k]/10)) for k in range(len(ccx))]
+    Cx = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
+    Cy = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
 
-    Cx = [np.cos(Cx[k])*crad[k]+ccx[k] for k in range(len(ccx))]
-    Cy = [np.sin(Cy[k])*crad[k]+ccy[k] for k in range(len(ccx))]
+    Cx = [np.cos(Cx[k])*Cr[k]+ccx[k] for k in range(len(ccx))]
+    Cy = [np.sin(Cy[k])*Cr[k]+ccy[k] for k in range(len(ccx))]
 
     for i in range(len(ccx)):
         for j in range(len(ccx)):
@@ -217,7 +220,7 @@ def gcp2():
             if i == j:
                 continue
 
-            cut = (Cx[j] - ccx[i])**2 + (Cy[j] - ccy[i])**2 > crad[i]**2
+            cut = (Cx[j] - ccx[i])**2 + (Cy[j] - ccy[i])**2 > Cr[i]**2
 
             Cx[j] = Cx[j][cut]
             Cy[j] = Cy[j][cut]
@@ -357,14 +360,13 @@ def pvfmine(delta,
     ############################################################################
     # Plot voids
     #---------------------------------------------------------------------------
-    # KAD -- START BACK HERE!!!!!
-    Cr = cint2(dec0, void_radii, void_decs)
+    Cr = cint2(dec0, vr_sorted, vdec_sorted)
 
-    for i in range(len(vfr)):
+    for i in range(len(vcz_sorted)):
 
         if np.sum(Cr[i]) > 0:
 
-            Cr2, Cra2 = gcp2(vfr2[i], vfra2[i], Cr[i], npc, chkdpth)
+            Cr2, Cra2 = gcp2(vcz_sorted[i], vra_sorted[i], Cr[i], npc, chkdpth)
 
             aux_ax3.plot(Cra2, Cr2, color='mediumpurple')
             aux_ax3.fill(Cra2, Cr2, alpha=0.2, color='mediumpurple')
@@ -405,7 +407,7 @@ def pvfmine(delta,
 
     aux_ax3.legend(bbox_to_anchor=(1.1, 1.05))
 
-    plt.title('Void map for comoving distance metric with RA $\in$[' + str(round(ra_min - 90, 2)) + ',' + str(round(ra_max - 90, 2)) + '] and centered at DEC =' + str(dec0) + '$^\circ$ with ' + str(2*wdth) + 'Mpc/h thickness', x=0.5, y=1.15)
+    plt.title('Voids with RA $\in$[' + str(round(ra_range[0] - 90, 2)) + ',' + str(round(ra_range[1] - 90, 2)) + '] and centered at DEC =' + str(dec0) + '$^\circ$ with ' + str(2*wdth) + 'Mpc/h thickness', x=0.5, y=1.15)
 
     ############################################################################
     # Determine whether to save or show the figure
