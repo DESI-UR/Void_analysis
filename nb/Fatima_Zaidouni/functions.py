@@ -397,6 +397,43 @@ def mixturemodel_skew(params, x):
 
 ################################################################################
 #-------------------------------------------------------------------------------
+def mixturemodel3_skew(params, x):
+    """
+    Mixture of three skew normal distributions.
+    
+
+    Parameters
+    ----------
+
+    params : list or ndarray
+        List of parameters (expect 3x4).
+
+    x : float or ndarray
+        Values to calculate the model.
+    
+
+    Returns
+    -------
+    model : float or ndarray
+        Mixture model evaluated at x.
+    """
+
+    a, mua, sga, askew = params[:4]
+
+    b, mub, sgb, bskew = params[4:8]
+    
+    c, muc, sgc, cskew = params[8:]
+
+    return a*skewnorm.pdf(x, askew, loc=mua, scale=sga) + \
+           b*skewnorm.pdf(x, bskew, loc=mub, scale=sgb) + \
+           c*skewnorm.pdf(x, cskew, loc=muc, scale=sgc)
+################################################################################
+
+
+
+
+################################################################################
+#-------------------------------------------------------------------------------
 def logLjoint1_skew(params, m, n, x, peaks):
     """
     Joint log-likelihood of the two data sets.
@@ -428,6 +465,8 @@ def logLjoint1_skew(params, m, n, x, peaks):
         lambda1 = model_skew(pars, x)
     elif peaks == 2:
         lambda1 = mixturemodel_skew(pars, x)
+    elif peaks == 3:
+        lambda1 = mixturemodel3_skew(pars, x)
     else:
         print('The mixture model for this many skew normals is not yet defined.')
         exit()
@@ -482,6 +521,9 @@ def logLjoint2_skew(params, m, n, x, peaks):
     elif peaks == 2:
         lambda1 = mixturemodel_skew(params[:8], x)
         lambda2 = mixturemodel_skew(params[8:], x)
+    elif peaks == 3:
+        lambda1 = mixturemodel3_skew(params[:12], x)
+        lambda2 = mixturemodel3_skew(params[12:], x)
     else:
         print('The mixture model for this many skew normals is not yet defined.')
         exit()
@@ -665,6 +707,9 @@ def Model_1_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
     elif peaks == 2:
         m1 = mixturemodel_skew(pars, x)
         m2 = s*m1
+    elif peaks == 3:
+        m1 = mixturemodel3_skew(pars, x)
+        m2 = s*m1
     else:
         print('The mixture model for this many skew normals is not yet defined.')
         exit()
@@ -723,26 +768,14 @@ def Model_1_sampler(prior_, data1, data2, bins_, peaks, fname_suffix=''):
     x, n1, n2, dn1, dn2 = bin_data(data1, data2, bins_)
 
     print("running the nested sampler... this might take from minutes to hours...")
-
-    if peaks == 1:
-        dsampler = dynesty.DynamicNestedSampler(logLjoint1_skew, 
-                                                prior_, 
-                                                ndim=5,
-                                                logl_args=(n1, n2, x, peaks),
-                                                nlive=1000,
-                                                bound='multi',
-                                                sample='auto')
-    elif peaks == 2:
-        dsampler = dynesty.DynamicNestedSampler(logLjoint1_skew, 
-                                                prior_, 
-                                                ndim=9,
-                                                logl_args=(n1, n2, x, peaks),
-                                                nlive=1000,
-                                                bound='multi',
-                                                sample='auto')
-    else:
-        print('The mixture model for this many skew normals is not yet defined.')
-        exit()
+    
+    dsampler = dynesty.DynamicNestedSampler(logLjoint1_skew, 
+                                            prior_, 
+                                            ndim=1 + 4*peaks,
+                                            logl_args=(n1, n2, x, peaks),
+                                            nlive=1000,
+                                            bound='multi',
+                                            sample='auto')
 
     dsampler.run_nested()
     dres1 = dsampler.results
@@ -980,16 +1013,11 @@ def Model_2_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
     '''
 
     x, n1, n2, dn1, dn2 = bin_data(data1, data2, bins_)
-
-    if peaks == 1:
-        m1 = model_skew(params[:4], x)
-        m2 = model_skew(params[4:], x)
-    elif peaks == 2:
-        m1 = mixturemodel_skew(params[:8], x)
-        m2 = mixturemodel_skew(params[8:], x)
-    else:
-        print('The mixture model for this many skew normals is not yet defined.')
-        exit()
+    
+    n_params = len(params)
+    
+    m1 = model_skew(params[:int(0.5*n_params)], x)
+    m2 = model_skew(params[int(0.5*n_params):], x)
 
     ############################################################################
     # Plot distributions and best fits
@@ -1045,26 +1073,14 @@ def Model_2_sampler(prior_, data1, data2, bins_, peaks, fname_suffix=''):
     x, n1, n2, dn1, dn2 = bin_data(data1, data2, bins_)
 
     print("running the nested sampler... this might take from minutes to hours...")
-
-    if peaks == 1:
-        dsampler = dynesty.DynamicNestedSampler(logLjoint2_skew, 
-                                                prior_, 
-                                                ndim=8,
-                                                logl_args=(n1, n2, x, peaks),
-                                                nlive=1000,
-                                                bound='multi',
-                                                sample='auto')
-    elif peaks == 2:
-        dsampler = dynesty.DynamicNestedSampler(logLjoint2_skew, 
-                                                prior_, 
-                                                ndim=16,
-                                                logl_args=(n1, n2, x, peaks),
-                                                nlive=1000,
-                                                bound='multi',
-                                                sample='auto')
-    else:
-        print('The mixture model for this many skew normals is not yet defined.')
-        exit()
+    
+    dsampler = dynesty.DynamicNestedSampler(logLjoint2_skew, 
+                                            prior_, 
+                                            ndim=8*peaks,
+                                            logl_args=(n1, n2, x, peaks),
+                                            nlive=1000,
+                                            bound='multi',
+                                            sample='auto')
 
     dsampler.run_nested()
     dres2 = dsampler.results
@@ -1132,3 +1148,7 @@ def estimate_Jacobian(f, x, params):
         
     return J
 ################################################################################
+
+
+
+
