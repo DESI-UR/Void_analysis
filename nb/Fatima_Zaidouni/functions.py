@@ -775,7 +775,8 @@ def Model_1_sampler(prior_, data1, data2, bins_, peaks, fname_suffix=''):
                                             logl_args=(n1, n2, x, peaks),
                                             nlive=1000,
                                             bound='multi',
-                                            sample='auto')
+                                            sample='auto'
+                                           )
 
     dsampler.run_nested()
     dres1 = dsampler.results
