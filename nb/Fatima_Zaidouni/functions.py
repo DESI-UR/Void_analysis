@@ -1017,8 +1017,21 @@ def Model_2_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
     
     n_params = len(params)
     
-    m1 = model_skew(params[:int(0.5*n_params)], x)
-    m2 = model_skew(params[int(0.5*n_params):], x)
+    pars1 = params[:int(0.5*n_params)]
+    pars2 = params[int(0.5*n_params):]
+
+    if peaks == 1:
+        m1 = model_skew(pars1, x)
+        m2 = model_skew(pars2, x)
+    elif peaks == 2:
+        m1 = mixturemodel_skew(pars1, x)
+        m2 = mixturemodel_skew(pars2, x)
+    elif peaks == 3:
+        m1 = mixturemodel3_skew(pars1, x)
+        m2 = mixturemodel3_skew(pars2, x)
+    else:
+        print('The mixture model for this many skew normals is not yet defined.')
+        exit()
 
     ############################################################################
     # Plot distributions and best fits
