@@ -206,7 +206,7 @@ def gcp2(s, ra, Cr, npc, chkdpth):
     Cr : list of floats
         Radii of circles in void that intersect with declination slice
 
-    npt : 
+    npc : 
 
     chkdpth : 
     '''
@@ -214,8 +214,8 @@ def gcp2(s, ra, Cr, npc, chkdpth):
     ccx = s*np.cos(ra*D2R)
     ccy = s*np.sin(ra*D2R)
 
-    Cx = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
-    Cy = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
+    Cx = [np.linspace(0, 2*np.pi, int(npc*Cr[k]/10)) for k in range(len(ccx))]
+    Cy = [np.linspace(0, 2*np.pi, int(npc*Cr[k]/10)) for k in range(len(ccx))]
 
     Cx = [np.cos(Cx[k])*Cr[k]+ccx[k] for k in range(len(ccx))]
     Cy = [np.sin(Cy[k])*Cr[k]+ccy[k] for k in range(len(ccx))]
