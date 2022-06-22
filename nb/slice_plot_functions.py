@@ -189,7 +189,7 @@ def cint2(dec, vr, vdec, vrad):
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def gcp2(s, ra, Cr, npc, chkdpth):
+def gcp2(s, ra, Cr, npt, chkdpth):
     '''
     Convert circles' coordinates to ordered boundary
 
@@ -206,7 +206,7 @@ def gcp2(s, ra, Cr, npc, chkdpth):
     Cr : list of floats
         Radii of circles in void that intersect with declination slice
 
-    npc : 
+    npt : 
 
     chkdpth : 
     '''
@@ -214,8 +214,8 @@ def gcp2(s, ra, Cr, npc, chkdpth):
     ccx = s*np.cos(ra*D2R)
     ccy = s*np.sin(ra*D2R)
 
-    Cx = [np.linspace(0, 2*np.pi, int(npc*Cr[k]/10)) for k in range(len(ccx))]
-    Cy = [np.linspace(0, 2*np.pi, int(npc*Cr[k]/10)) for k in range(len(ccx))]
+    Cx = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
+    Cy = [np.linspace(0, 2*np.pi, int(npt*Cr[k]/10)) for k in range(len(ccx))]
 
     Cx = [np.cos(Cx[k])*Cr[k]+ccx[k] for k in range(len(ccx))]
     Cy = [np.sin(Cy[k])*Cr[k]+ccy[k] for k in range(len(ccx))]
@@ -283,7 +283,7 @@ def pvfmine(delta,
             dec0, 
             holes, 
             wdth, 
-            npc, 
+            npt, 
             chkdpth, 
             figure_file=None):
     '''
@@ -318,7 +318,7 @@ def pvfmine(delta,
     wdth : float
         Thickness of sky slice to plot
 
-    npc : 
+    npt : 
 
     chkdpth : 
 
@@ -372,7 +372,7 @@ def pvfmine(delta,
 
         if np.sum(Cr[i]) > 0:
 
-            Cr2, Cra2 = gcp2(vcz_sorted[i], vra_sorted[i], Cr[i], npc, chkdpth)
+            Cr2, Cra2 = gcp2(vcz_sorted[i], vra_sorted[i], Cr[i], npt, chkdpth)
 
             aux_ax3.plot(Cra2, Cr2, color='mediumpurple')
             aux_ax3.fill(Cra2, Cr2, alpha=0.2, color='mediumpurple')
