@@ -409,7 +409,7 @@ def pvfmine(delta,
     ra_min = ra_range[0]
     ra_max = ra_range[1]
 
-    mpl.rc('font', size=8)
+    plt.rc('font', size=8)
 
     aux_ax3.legend(bbox_to_anchor=(1.1, 1.05))
 
