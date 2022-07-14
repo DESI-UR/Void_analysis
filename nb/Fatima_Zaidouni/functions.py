@@ -263,6 +263,38 @@ def plot_hist(data1,data2,bins_,label="property"):
 
 
 
+################################################################################
+#-------------------------------------------------------------------------------
+def log_prior(params, bounds):
+    '''
+    Log-prior probability density function used by either data set and either 
+    model.
+
+
+    PARAMETERS
+    ==========
+
+    params : ndarray of shape (n,)
+        Array of parameter values.
+        
+    bounds : ndarray of shape (n,2)
+        Array of parameter bounds.
+
+
+    RETURNS
+    =======
+    
+    -np.inf if any parameter falls outside of its limits, 0 otherwise.
+    '''
+
+    if np.any(params < bounds.T[0]) or np.any(params > bounds.T[1]):
+        return -np.inf
+    else:
+        return 0.0
+################################################################################
+
+
+
 
 ################################################################################
 #-------------------------------------------------------------------------------
