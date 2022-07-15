@@ -137,20 +137,22 @@ x, n1, n2, dn1, dn2 = bin_data(rabsmag_NSA[wall_v2],
 # Number of CPUs
 n_cpus = 4
 
-with Pool(n_cpus) as pool:
+if __name__ == '__main__':
 
-    # Initialize sampler for M1
-    V2_sampler1 = pc.Sampler(n_particles=n_particles, 
-                             n_dim=n_dim1, 
-                             log_likelihood=logLjoint1_skew, 
-                             log_prior=log_prior, 
-                             bounds=np.array(V2_fit_bounds1), 
-                             log_likelihood_args=[n1, n2, x, 2], 
-                             log_prior_args=[np.array(V2_fit_bounds1)], 
-                             pool=pool)
+    with Pool(n_cpus) as pool:
 
-    # Run sampler
-    V2_sampler1.run(V2_prior_samples1)
+        # Initialize sampler for M1
+        V2_sampler1 = pc.Sampler(n_particles=n_particles, 
+                                 n_dim=n_dim1, 
+                                 log_likelihood=logLjoint1_skew, 
+                                 log_prior=log_prior, 
+                                 bounds=np.array(V2_fit_bounds1), 
+                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_prior_args=[np.array(V2_fit_bounds1)], 
+                                 pool=pool)
+
+        # Run sampler
+        V2_sampler1.run(V2_prior_samples1)
 #-------------------------------------------------------------------------------
 
 
