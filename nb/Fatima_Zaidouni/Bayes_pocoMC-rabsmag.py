@@ -17,6 +17,9 @@ import numpy as np
 
 import sys
 
+import os
+os.environ['OMP_NUM_THREADS'] = '1'
+
 import pocomc as pc
 
 from multiprocessing import Pool
@@ -38,7 +41,9 @@ matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 # Data
 #-------------------------------------------------------------------------------
-data_filename = '../../../../data/NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+#data_directory = '../../../../data/'
+data_directory = '../../../../Data/NSA/'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -85,14 +90,48 @@ del catalog_main
 
 
 ################################################################################
-# Fit the absolute magnitude distributions with skewnormal distributions
+# General parameters and properties
+#-------------------------------------------------------------------------------
+# Bins
+rabsmag_bins = np.arange(-24, -15, 0.1)
+
+# Parameter labels
+labels1_bi = ['s', 'a', r'$\mu_a$', r'$\sigma_a$', 'skew$_a$', 
+                   'b', r'$\mu_b$', r'$\sigma_b$', 'skew$_b$']
+labels2_bi = ['$a_1$', r'$\mu_{1a}$', r'$\sigma_{1a}$', 'skew$_{1a}$', 
+              '$b_1$', r'$\mu_{1b}$', r'$\sigma_{1b}$', 'skew$_{1b}$', 
+              '$a_2$', r'$\mu_{2a}$', r'$\sigma_{2a}$', 'skew$_{2a}$', 
+              '$b_2$', r'$\mu_{2b}$', r'$\sigma_{2b}$', 'skew$_{2b}$']
+
+# Number of particles to use
+n_particles = 1000
+
+# Number of parameters in M1
+n_dim1 = len(labels1_bi)
+
+# Number of parameters in M2
+n_dim2 = len(labels2_bi)
+
+# Number of CPUs
+n_cpus = 10
+################################################################################
+
+
+
+
+
+################################################################################
+# Fit the absolute magnitude distributions with skewnormal distributions for V2
 #
 # Both one- and two-parent models
 # 
 # This is a unimodal distribution, but we are fitting it with a sum of two skew 
 # normals to account for the extra bumps in the distributions.
 #-------------------------------------------------------------------------------
-rabsmag_bins = np.arange(-24, -15, 0.1)
+# Bin data
+x, n1, n2, dn1, dn2 = bin_data(rabsmag_NSA[wall_v2], 
+                               rabsmag_NSA[void_v2], 
+                               rabsmag_bins)
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -106,37 +145,12 @@ V2_fit_bounds1 = [[1, 4],        # s ........ Gaussian a to b scale factor
                   [0.1, 2],      # sigma_b .. Gaussian b scale
                   [-4, 0]]       # skew_b ... Gaussian b skew
 
-VF_fit_bounds1 = [[0.01, 2],     # s ........ Gaussian a to b scale factor
-                  [5000, 20000], # a ........ Gaussian a amplitude
-                  [-22, -20],    # mu_a ..... Gaussian a location
-                  [0.1, 3],      # sigma_a .. Gaussian a scale
-                  [-5, 5],       # skew_ a .. Gaussian a skew
-                  [5000, 30000], # b ........ Gaussian b amplitude
-                  [-20, -18],    # mu_b ..... Gaussian b location
-                  [0.01, 3],     # sigma_b .. Gaussian b scale
-                  [-5, 5]]       # skew_b ... Gaussian b skew
-#-------------------------------------------------------------------------------
-# pocoMC sampling of Likelihood and Priors
-#-------------------------------------------------------------------------------
-# Number of particles to use
-n_particles = 1000
-
-# Number of parameters in M1
-n_dim1 = len(V2_fit_bounds1)
-
 # Prior samples for M1
 V2_prior_samples1 = np.random.uniform(low=np.array(V2_fit_bounds1).T[0], 
                                       high=np.array(V2_fit_bounds1).T[1], 
                                       size=(n_particles, n_dim1))
 
-# Bin data
-x, n1, n2, dn1, dn2 = bin_data(rabsmag_NSA[wall_v2], 
-                               rabsmag_NSA[void_v2], 
-                               rabsmag_bins)
-
-# Number of CPUs
-n_cpus = 4
-
+# pocoMC sampler (parallel)
 if __name__ == '__main__':
 
     with Pool(n_cpus) as pool:
@@ -153,7 +167,105 @@ if __name__ == '__main__':
 
         # Run sampler
         V2_sampler1.run(V2_prior_samples1)
+        
+# Get results
+V2_results1 = V2_sampler1.results
+
+# Corner plot of V2 M1
+pc.plotting.corner(V2_results1, 
+                   labels=labels1_bi, 
+                   dims=range(len(labels1_bi)), 
+                   show_titles=True, 
+                   quantiles=[0.16, 0.5, 0.84])
+plt.show()
+
+# V2 log(z)
+lnzM1_V2 = V2_results1['logz'][-1]
 #-------------------------------------------------------------------------------
+# 2-parent model
+#-------------------------------------------------------------------------------
+V2_fit_bounds2 = [[500, 5000],   # a1 ........ Gaussian A amplitude
+                  [-22, -20.4],  # mu_a1 ..... Gaussian A location
+                  [0.1, 5],      # sigma_a1 .. Gaussian A scale
+                  [-5, 10],      # skew_a1 ... Gaussian A skew
+                  [5000, 20000], # b1 ........ Gaussian B amplitude
+                  [-20.4, -16],  # mu_b1 ..... Gaussian B location
+                  [0.1, 5],      # sigma_b1 .. Gaussian B scale
+                  [-5, 5],       # skew_b1 ... Gaussian B skew
+                  [5000, 20000], # a2 ........ Gaussian A amplitude
+                  [-22, -20],    # mu_a2 ..... Gaussian A location
+                  [0.1, 5],      # sigma_a2 .. Gaussian A scale
+                  [0, 5],        # skew_a2 ... Gaussian A skew
+                  [5000, 20000], # b2 ........ Gaussian B amplitude
+                  [-20, -16],    # mu_b2 ..... Gaussian B location
+                  [0.1, 5],      # sigma_b2 .. Gaussian B scale
+                  [-5, 5]]       # skew_b2 ... Gaussian B skew
+
+# Prior samples for M2
+V2_prior_samples2 = np.random.uniform(low=np.array(V2_fit_bounds2).T[0], 
+                                      high=np.array(V2_fit_bounds2).T[1], 
+                                      size=(n_particles, n_dim2))
+
+# pocoMC sampler (parallel)
+if __name__ == '__main__':
+
+    with Pool(n_cpus) as pool:
+
+        # Initialize sampler for M1
+        V2_sampler2 = pc.Sampler(n_particles=n_particles, 
+                                 n_dim=n_dim2, 
+                                 log_likelihood=logLjoint2_skew, 
+                                 log_prior=log_prior, 
+                                 bounds=np.array(V2_fit_bounds2), 
+                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_prior_args=[np.array(V2_fit_bounds2)], 
+                                 pool=pool)
+
+        # Run sampler
+        V2_sampler2.run(V2_prior_samples2)
+        
+# Get results
+V2_results2 = V2_sampler2.results
+
+# Corner plot of V2 M2
+pc.plotting.corner(V2_results2, 
+                   labels=labels2_bi, 
+                   dims=range(len(labels2_bi)), 
+                   show_titles=True, 
+                   quantiles=[0.16, 0.5, 0.84])
+plt.show()
+
+# V2 log(z)
+lnzM2_V2 = V2_results2['logz'][-1]
+#-------------------------------------------------------------------------------
+# Calculate Bayes factor
+#-------------------------------------------------------------------------------
+lnB12_V2 = lnzM1_V2 - lnzM2_V2
+
+B12_V2 = np.exp(lnB12_V2)
+
+print('V2 Mr: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
+#-------------------------------------------------------------------------------
+################################################################################
+
+
+
+
+
+
+################################################################################
+# VoidFinder
+#-------------------------------------------------------------------------------
+VF_fit_bounds1 = [[0.01, 2],     # s ........ Gaussian a to b scale factor
+                  [5000, 20000], # a ........ Gaussian a amplitude
+                  [-22, -20],    # mu_a ..... Gaussian a location
+                  [0.1, 3],      # sigma_a .. Gaussian a scale
+                  [-5, 5],       # skew_ a .. Gaussian a skew
+                  [5000, 30000], # b ........ Gaussian b amplitude
+                  [-20, -18],    # mu_b ..... Gaussian b location
+                  [0.01, 3],     # sigma_b .. Gaussian b scale
+                  [-5, 5]]       # skew_b ... Gaussian b skew
+################################################################################
 
 
 
