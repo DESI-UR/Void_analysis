@@ -115,9 +115,9 @@ field_galaxies_xyz = np.concatenate([f_galaxies_xyz, w_galaxies_xyz[remove_boole
 ################################################################################
 # Visualize voids
 #-------------------------------------------------------------------------------
-true_void_color = np.array([0, 0, 1, 1], dtype=np.float32) # blue
-old_void_color  = np.array([0, 1, 0, 1], dtype=np.float32) # green
-new_void_color  = np.array([1, 0, 1, 1], dtype=np.float32) # magenta
+true_void_color = np.array([0, 0, 1, 0.8], dtype=np.float32) # blue
+old_void_color  = np.array([0, 1, 0, 0.8], dtype=np.float32) # green
+new_void_color  = np.array([1, 0, 1, 0.8], dtype=np.float32) # magenta
 
 # Concatenate all the void catalogs together, using the colors given above
 all_holes_xyz = np.concatenate((holes_xyz, old_holes_xyz, new_holes_xyz))
@@ -138,7 +138,7 @@ viz = VoidRender(holes_xyz=all_holes_xyz,
                  galaxy_xyz=field_galaxies_xyz, 
                  galaxy_color=np.array([1, 0, 0, 1], dtype=np.float32), 
                  wall_galaxy_xyz=wall_galaxies_xyz, 
-                 wall_distance=0.26, 
+                 wall_distance=None, 
                  wall_galaxy_color=np.array([0, 0, 0, 1], dtype=np.float32), 
                  galaxy_display_radius=10.0, 
                  remove_void_intersects=2, 
