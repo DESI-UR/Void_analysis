@@ -32,7 +32,6 @@ from vast.voidfinder.distance import z_to_comoving_dist
 void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/public/v1.1.0/'
 void_filename = void_catalog_directory + 'VoidFinder-nsa_v1_0_1_main_comoving_holes.txt'
 
-
 dist_metric = 'comoving'
 #-------------------------------------------------------------------------------
 
@@ -66,7 +65,7 @@ galaxy_file_format = 'fits'
 
 
 ################################################################################
-# ONSTANTS
+# CONSTANTS
 #-------------------------------------------------------------------------------
 c = 3e5 # km/s
 
@@ -108,7 +107,7 @@ voids['voidID'] == index number identifying to which void the sphere belongs
 # Read in list of objects to be classified
 #-------------------------------------------------------------------------------
 if galaxy_file_format == 'ecsv':
-    galaxies = QTable.read( galaxy_filename, format='ascii.ecsv')
+    galaxies = QTable.read(galaxy_filename, format='ascii.ecsv')
     DtoR = 1.
 
     z_col = 'redshift'
@@ -151,6 +150,7 @@ print('Data and mask imported')
 
 
 
+
 ################################################################################
 # CONVERT GALAXY ra,dec,z TO x,y,z
 #
@@ -162,6 +162,7 @@ print('Converting coordinate system')
 if dist_metric == 'comoving':
     if 'Rgal' not in galaxies.columns:
         galaxies['Rgal'] = z_to_comoving_dist(galaxies[z_col].data.astype(np.float32), Omega_M, h)
+
     galaxies_r = galaxies['Rgal']
 
     r_range = z_to_comoving_dist(np.array(z_range, dtype=np.float32), Omega_M, h)
@@ -186,6 +187,7 @@ print('Coordinates converted')
 
 
 
+
 ################################################################################
 # IDENTIFY LARGE-SCALE ENVIRONMENT
 #-------------------------------------------------------------------------------
@@ -196,8 +198,11 @@ galaxies['vflag'] = 9
 for i in range(len(galaxies)):
 
     #print('Galaxy #', galaxies['NSA_index'][i])
+
+    if galaxies_r[i] > 0:
     
     if np.all(np.isfinite([galaxies_x[i], galaxies_y[i], galaxies_z[i]])):
+
         galaxies['vflag'][i] = determine_vflag(galaxies_x[i], 
                                                galaxies_y[i], 
                                                galaxies_z[i], 
@@ -238,6 +243,7 @@ elif galaxy_file_format == 'commented_header':
 elif galaxy_file_format == 'fits':
     galaxies.write(outfile, format='fits', overwrite=True)
 ################################################################################
+
 
 
 
