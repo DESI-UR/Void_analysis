@@ -10,6 +10,8 @@ from vast.voidfinder.multizmask import generate_mask
 from vast.voidfinder.preprocessing import file_preprocess
 
 import pickle
+
+#import numpy as np
 ################################################################################
 
 
@@ -130,9 +132,9 @@ wall_coords_xyz, field_coords_xyz = filter_galaxies(galaxy_data_table,
                                                     magnitude_limit=magnitude_limit,
                                                     verbose=1)
 
-del galaxy_data_table
+#del galaxy_data_table
 
-temp_outfile = open(survey_name + "filter_galaxies_output.pickle", 'wb')
+temp_outfile = open(out_directory + survey_name + "filter_galaxies_output.pickle", 'wb')
 pickle.dump((wall_coords_xyz, field_coords_xyz), temp_outfile)
 temp_outfile.close()
 ################################################################################
@@ -145,11 +147,11 @@ temp_outfile.close()
 # FIND VOIDS
 #-------------------------------------------------------------------------------
 '''
-temp_infile = open(survey_name + "filter_galaxies_output.pickle", 'rb')
+temp_infile = open(out_directory + survey_name + "filter_galaxies_output.pickle", 'rb')
 wall_coords_xyz, field_coords_xyz = pickle.load(temp_infile)
 temp_infile.close()
 '''
-find_voids(wall_coords_xyz, 
+find_voids([wall_coords_xyz, field_coords_xyz],
            survey_name, 
            mask_type='ra_dec_z',
            mask=mask, 
