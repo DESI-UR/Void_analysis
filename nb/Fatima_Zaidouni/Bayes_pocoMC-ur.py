@@ -24,15 +24,11 @@ import pocomc as pc
 
 from multiprocessing import Pool
 
-import matplotlib
-import matplotlib.pyplot as plt
+import pickle
 
 from functions import log_prior, bin_data, logLjoint1_skew, logLjoint2_skew
 
 np.set_printoptions(threshold=sys.maxsize)
-
-matplotlib.rc('font', size=14)
-matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 
 
@@ -116,10 +112,10 @@ labels2_tri = ['$a_1$', r'$\mu_{1a}$', r'$\sigma_{1a}$', 'skew$_{1a}$',
 n_particles = 1000
 
 # Number of parameters in M1
-n_dim1 = len(labels1_bi)
+n_dim1 = len(labels1_tri)
 
 # Number of parameters in M2
-n_dim2 = len(labels2_bi)
+n_dim2 = len(labels2_tri)
 
 # Number of CPUs
 n_cpus = 10
@@ -144,7 +140,8 @@ x, n1, n2, dn1, dn2 = bin_data(ur_NSA[wall_v2],
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-V2_fit_bounds1 = [[0.1, 1],    # s ........ Gaussian a to b scale factor
+'''
+V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian a to b scale factor
                   [500, 5000], # a ........ Gaussian a amplitude
                   [1, 2.1],    # mu_a ..... Gaussian a location
                   [0.1, 3],    # sigma_a .. Gaussian a scale
@@ -153,6 +150,20 @@ V2_fit_bounds1 = [[0.1, 1],    # s ........ Gaussian a to b scale factor
                   [2.1, 3.5],  # mu_b ..... Gaussian b location
                   [0.001, 3],  # sigma_b .. Gaussian b scale
                   [-5, 0]]     # skew_b ... Gaussian b skew
+'''
+V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian 1 to 2 scale factor
+                  [500, 5000], # a ........ Gaussian a amplitude
+                  [1, 1.8],    # mu_a ..... Gaussian a location
+                  [0.1, 2],    # sigma_a .. Gaussian a scale
+                  [0, 5],      # skew_a ... Gaussian a skew
+                  [500, 5000], # b ........ Gaussian b amplitude
+                  [1.8, 2.4],  # mu_b ..... Gaussian b location
+                  [0.01, 1],   # sigma_b .. Gaussian b scale
+                  [-2.5, 2.5], # skew_b ... Gaussian b skew
+                  [500, 5000], # c ........ Gaussian c amplitude
+                  [2.4, 3.5],  # mu_c ..... Gaussian c location
+                  [0.001, 1],  # sigma_c .. Gaussian c scale
+                  [-5, 0]]     # skew_c ... Gaussian c skew
 
 # Prior samples for M1
 V2_prior_samples1 = np.random.uniform(low=np.array(V2_fit_bounds1).T[0], 
@@ -170,7 +181,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint1_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(V2_fit_bounds1), 
-                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_likelihood_args=[n1, n2, x, 3], 
                                  log_prior_args=[np.array(V2_fit_bounds1)], 
                                  pool=pool)
 
@@ -180,19 +191,14 @@ if __name__ == '__main__':
 # Get results
 V2_results1 = V2_sampler1.results
 
-# Corner plot of V2 M1
-pc.plotting.corner(V2_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# V2 log(z)
-lnzM1_V2 = V2_results1['logz'][-1]
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_V2.pickle', 'wb')
+pickle.dump((V2_results1), temp_outfile)
+temp_outfile.close()
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
+'''
 V2_fit_bounds2 = [[500, 10000],  # a1 ........ Gaussian A amplitude
                   [1, 2.1],      # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
@@ -209,7 +215,8 @@ V2_fit_bounds2 = [[500, 10000],  # a1 ........ Gaussian A amplitude
                   [2.1, 3.5],    # mu_b2 ..... Gaussian B location
                   [0.01, 2],     # sigma_b2 .. Gaussian B scale
                   [-5, 0]]       # skew_b2 ... Gaussian B skew
-
+'''
+V2_fit_bounds2 = [[
 # Prior samples for M2
 V2_prior_samples2 = np.random.uniform(low=np.array(V2_fit_bounds2).T[0], 
                                       high=np.array(V2_fit_bounds2).T[1], 
@@ -226,7 +233,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint2_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(V2_fit_bounds2), 
-                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_likelihood_args=[n1, n2, x, 3], 
                                  log_prior_args=[np.array(V2_fit_bounds2)], 
                                  pool=pool)
 
@@ -236,25 +243,10 @@ if __name__ == '__main__':
 # Get results
 V2_results2 = V2_sampler2.results
 
-# Corner plot of V2 M2
-pc.plotting.corner(V2_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# V2 log(z)
-lnzM2_V2 = V2_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_V2 = lnzM1_V2 - lnzM2_V2
-
-B12_V2 = np.exp(lnB12_V2)
-
-print('V2 u-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
-#-------------------------------------------------------------------------------
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2.pickle', 'wb')
+pickle.dump((V2_results2), temp_outfile)
+temp_outfile.close()
 ################################################################################
 
 
@@ -277,7 +269,8 @@ x, n1, n2, dn1, dn2 = bin_data(ur_NSA[wall_vf],
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-VF_fit_bounds1 = [[1, 5],        # s ........ Gaussian a to b scale factor
+'''
+VF_fit_bounds1 = [[0.01, 1],     # s ........ Gaussian 1 to 2 scale factor
                   [1000, 10000], # a ........ Gaussian a amplitude
                   [1, 2.1],      # mu_a ..... Gaussian a location
                   [0.1, 3],      # sigma_a .. Gaussian a scale
@@ -286,6 +279,20 @@ VF_fit_bounds1 = [[1, 5],        # s ........ Gaussian a to b scale factor
                   [2.1, 3.5],    # mu_b ..... Gaussian b location
                   [0.001, 2],    # sigma_b .. Gaussian b scale
                   [-5, 5]]       # skew_b ... Gaussian b skew
+'''
+VF_fit_bounds1 = [[0.1, 1],      # s ........ Gaussian 1 to 2 scale factor
+                  [1000, 10000], # a ........ Gaussian a amplitude
+                  [1, 1.8],      # mu_a ..... Gaussian a location
+                  [0.1, 2],      # sigma_a .. Gaussian a scale
+                  [0, 5],        # skew_a ... Gaussian a skew
+                  [500, 5000],   # b ........ Gaussian b amplitude
+                  [1.8, 2.5],    # mu_b ..... Gaussian b location
+                  [0.1, 2],      # sigma_b .. Gaussian b scale
+                  [-5, 0],       # skew_b ... Gaussian b skew
+                  [1000, 8000],  # c ........ Gaussian c amplitude
+                  [2.5, 3.5],    # mu_c ..... Gaussian c location
+                  [0.01, 2],     # sigma_c .. Gaussian c scale
+                  [-5, 0]]       # skew_c ... Gaussian c skew
 
 # Prior samples for M1
 VF_prior_samples1 = np.random.uniform(low=np.array(VF_fit_bounds1).T[0], 
@@ -303,7 +310,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint1_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(VF_fit_bounds1), 
-                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_likelihood_args=[n1, n2, x, 3], 
                                  log_prior_args=[np.array(VF_fit_bounds1)], 
                                  pool=pool)
 
@@ -313,16 +320,11 @@ if __name__ == '__main__':
 # Get results
 VF_results1 = VF_sampler1.results
 
-# Corner plot of VoidFinder's M1
-pc.plotting.corner(VF_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# VoidFinder log(z)
-lnzM1_VF = VF_results1['logz'][-1]
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results1), temp_outfile)
+temp_outfile.close()
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
@@ -369,25 +371,11 @@ if __name__ == '__main__':
 # Get results
 VF_results2 = VF_sampler2.results
 
-# Corner plot of VoidFinder M2
-pc.plotting.corner(VF_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# VoidFinder log(z)
-lnzM2_VF = VF_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_VF = lnzM1_VF - lnzM2_VF
-
-B12_VF = np.exp(lnB12_VF)
-
-print('VoidFinder u-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_VF, lnB12_VF*np.log10(np.exp(1))))
-#-------------------------------------------------------------------------------
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results2), temp_outfile)
+temp_outfile.close()
 ################################################################################
 
 
