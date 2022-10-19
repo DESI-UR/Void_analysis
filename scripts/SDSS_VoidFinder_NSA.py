@@ -46,7 +46,8 @@ max_z = 0.114
 
 # Cosmology (uncomment and change values to change cosmology)
 # Need to also uncomment relevent inputs in function calls below
-Omega_M = 0.315
+Omega_M = 0.315 # Planck 2018
+#Omega_M = 0.258 # WMAP-5
 #h = 1
 
 # Uncomment if you do NOT want to use comoving distances
