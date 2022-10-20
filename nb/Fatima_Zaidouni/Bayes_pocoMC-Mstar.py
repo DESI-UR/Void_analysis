@@ -22,6 +22,8 @@ import pocomc as pc
 
 from multiprocessing import Pool
 
+import pickle
+
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -65,7 +67,7 @@ del catalog_north
 #-------------------------------------------------------------------------------
 # Define array of parameter to be fit
 #-------------------------------------------------------------------------------
-Mstar_NSA = np.array(catalog_main['ELPETRO_MASS'])
+Mstar_NSA = np.log10(catalog_main['ELPETRO_MASS'])
 #-------------------------------------------------------------------------------
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
@@ -130,18 +132,19 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(Mstar_NSA[wall_v2], 
                                Mstar_NSA[void_v2], 
                                Mstar_bins)
+'''
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
 V2_fit_bounds1 = [[1, 4],        # s ........ Gaussian a to b scale factor
-                  [1000, 10000], # a ........ Gaussian a amplitude
+                  [1000, 6000],  # a ........ Gaussian a amplitude
                   [9.5, 10.45],  # mu_a ..... Gaussian a location
-                  [0.1, 2],      # sigma_a .. Gaussian a scale
-                  [-4, 0],       # skew_a ... Gaussian a skew
-                  [1000, 10000], # b ........ Gaussian b amplitude
+                  [0.01, 1],     # sigma_a .. Gaussian a scale
+                  [-2.5, 2.5],   # skew_a ... Gaussian a skew
+                  [3000, 9000],  # b ........ Gaussian b amplitude
                   [10.45, 11],   # mu_b ..... Gaussian b location
                   [0.1, 2],      # sigma_b .. Gaussian b scale
-                  [-4, 0]]       # skew_b ... Gaussian b skew
+                  [-5, 5]]       # skew_b ... Gaussian b skew
 
 # Prior samples for M1
 V2_prior_samples1 = np.random.uniform(low=np.array(V2_fit_bounds1).T[0], 
@@ -173,6 +176,9 @@ V2_results1 = V2_sampler1.results
 temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2.pickle', 'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
+
+exit()
+'''
 '''
 # Corner plot of V2 M1
 pc.plotting.corner(V2_results1, 
@@ -188,6 +194,7 @@ lnzM1_V2 = V2_results1['logz'][-1]
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
+'''
 V2_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A amplitude
                   [9, 10.45],    # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
@@ -235,6 +242,11 @@ V2_results2 = V2_sampler2.results
 temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_V2.pickle', 'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
+
+exit()
+'''
 '''
 # Corner plot of V2 M2
 pc.plotting.corner(V2_results2, 
@@ -279,6 +291,7 @@ x, n1, n2, dn1, dn2 = bin_data(Mstar_NSA[wall_vf],
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
+'''
 VF_fit_bounds1 = [[0.01, 2],     # s ........ Gaussian a to b scale factor
                   [1000, 10000], # a ........ Gaussian a amplitude
                   [9.5, 10.45],  # mu_a ..... Gaussian a location
@@ -320,6 +333,11 @@ temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_VoidFinder.pickle',
                     'wb')
 pickle.dump((VF_results1), temp_outfile)
 temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 400))
+
+exit()
+'''
 '''
 # Corner plot of VF M1
 pc.plotting.corner(VF_results1, 
@@ -335,11 +353,11 @@ lnzM1_VF = VF_results1['logz'][-1]
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-VF_fit_bounds2 = [[5000, 20000],  # a1 ........ Gaussian A amplitude
+VF_fit_bounds2 = [[10000, 20000], # a1 ........ Gaussian A amplitude
                   [9.5, 10.25],   # mu_a1 ..... Gaussian A location
                   [0.01, 2],      # sigma_a1 .. Gaussian A scale
                   [-2.5, 2.5],    # skew_a1 ... Gaussian A skew
-                  [10000, 50000], # b1 ........ Gaussian B amplitude
+                  [10000, 20000], # b1 ........ Gaussian B amplitude
                   [10.25, 11],    # mu_b1 ..... Gaussian B location
                   [0.01, 2],      # sigma_b1 .. Gaussian B scale
                   [-5, 0],        # skew_b1 ... Gaussian B skew
@@ -383,6 +401,10 @@ temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_VoidFinder.pickle',
                     'wb')
 pickle.dump((VF_results2), temp_outfile)
 temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 350))
+
+exit()
 '''
 # Corner plot of VF M2
 pc.plotting.corner(VF_results2, 
