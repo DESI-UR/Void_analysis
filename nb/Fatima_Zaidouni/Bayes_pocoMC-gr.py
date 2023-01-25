@@ -24,15 +24,11 @@ import pocomc as pc
 
 from multiprocessing import Pool
 
-import matplotlib
-import matplotlib.pyplot as plt
+import pickle
 
 from functions import log_prior, bin_data, logLjoint1_skew, logLjoint2_skew
 
 np.set_printoptions(threshold=sys.maxsize)
-
-matplotlib.rc('font', size=14)
-matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 
 
@@ -43,7 +39,7 @@ matplotlib.rc('font', family='DejaVu Sans')
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -128,7 +124,7 @@ n_cpus = 10
 
 
 
-
+'''
 ################################################################################
 # Fit the color distributions with skewnormal distributions for V2
 #
@@ -256,7 +252,7 @@ B12_V2 = np.exp(lnB12_V2)
 print('V2 g-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
 #-------------------------------------------------------------------------------
 ################################################################################
-
+'''
 
 
 
@@ -274,10 +270,11 @@ print('V2 g-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10
 x, n1, n2, dn1, dn2 = bin_data(gr_NSA[wall_vf], 
                                gr_NSA[void_vf], 
                                gr_bins)
+'''
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-VF_fit_bounds1 = [[1, 5],       # s ........ Gaussian a to b scale factor
+VF_fit_bounds1 = [[0.001, 1],   # s ........ Gaussian a to b scale factor
                   [500, 10000], # a ........ Gaussian a amplitude
                   [0, 0.75],    # mu_a ..... Gaussian a location
                   [0.01, 3],    # sigma_a .. Gaussian a scale
@@ -313,16 +310,14 @@ if __name__ == '__main__':
 # Get results
 VF_results1 = VF_sampler1.results
 
-# Corner plot of VoidFinder's M1
-pc.plotting.corner(VF_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results1), temp_outfile)
+temp_outfile.close()
 
-# VoidFinder log(z)
-lnzM1_VF = VF_results1['logz'][-1]
+exit()
+'''
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
@@ -369,24 +364,11 @@ if __name__ == '__main__':
 # Get results
 VF_results2 = VF_sampler2.results
 
-# Corner plot of VoidFinder M2
-pc.plotting.corner(VF_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# VoidFinder log(z)
-lnzM2_VF = VF_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_VF = lnzM1_VF - lnzM2_VF
-
-B12_VF = np.exp(lnB12_VF)
-
-print('VoidFinder g-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_VF, lnB12_VF*np.log10(np.exp(1))))
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results2), temp_outfile)
+temp_outfile.close()
 #-------------------------------------------------------------------------------
 ################################################################################
 

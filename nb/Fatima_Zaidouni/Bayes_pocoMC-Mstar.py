@@ -43,7 +43,7 @@ matplotlib.rc('font', family='DejaVu Sans')
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -362,11 +362,11 @@ VF_fit_bounds2 = [[10000, 20000], # a1 ........ Gaussian A amplitude
                   [0.01, 2],      # sigma_b1 .. Gaussian B scale
                   [-5, 0],        # skew_b1 ... Gaussian B skew
                   [1000, 10000],  # a2 ........ Gaussian A amplitude
-                  [8, 10.39],     # mu_a2 ..... Gaussian A location
+                  [8, 10.35],     # mu_a2 ..... Gaussian A location
                   [0.1, 2],       # sigma_a2 .. Gaussian A scale
                   [-10, 0],       # skew_a2 ... Gaussian A skew
                   [1000, 10000],  # b2 ........ Gaussian B amplitude
-                  [10.39, 11],    # mu_b2 ..... Gaussian B location
+                  [10.35, 11],    # mu_b2 ..... Gaussian B location
                   [0.01, 2],      # sigma_b2 .. Gaussian B scale
                   [-5, 0]]        # skew_b2 ... Gaussian B skew
 
@@ -404,7 +404,6 @@ temp_outfile.close()
 
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 350))
 
-exit()
 '''
 # Corner plot of VF M2
 pc.plotting.corner(VF_results2, 

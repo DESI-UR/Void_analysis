@@ -24,15 +24,17 @@ import pocomc as pc
 
 from multiprocessing import Pool
 
-import matplotlib
-import matplotlib.pyplot as plt
+import pickle
+
+#import matplotlib
+#import matplotlib.pyplot as plt
 
 from functions import log_prior, bin_data, logLjoint1_skew, logLjoint2_skew
 
 np.set_printoptions(threshold=sys.maxsize)
 
-matplotlib.rc('font', size=14)
-matplotlib.rc('font', family='DejaVu Sans')
+#matplotlib.rc('font', size=14)
+#matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 
 
@@ -43,7 +45,7 @@ matplotlib.rc('font', family='DejaVu Sans')
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -119,7 +121,7 @@ n_cpus = 10
 
 
 
-
+'''
 ################################################################################
 # Fit the absolute magnitude distributions with skewnormal distributions for V2
 #
@@ -247,14 +249,29 @@ B12_V2 = np.exp(lnB12_V2)
 print('V2 Mr: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
 #-------------------------------------------------------------------------------
 ################################################################################
-
+'''
 
 
 
 
 
 ################################################################################
+# Fit the absolute magnitude distribution with skewnormal distributions for 
 # VoidFinder
+#
+# Both one- and two-parent models
+#
+# This is a unimodal distribution, but we are fitting it with a sum of two skew 
+# normals to account for the extra bumps in the distributions.
+#-------------------------------------------------------------------------------
+# Bin data
+#-------------------------------------------------------------------------------
+x, n1, n2, dn1, dn2 = bin_data(rabsmag_NSA[wall_vf], 
+                               rabsmag_NSA[void_vf], 
+                               rabsmag_bins)
+'''
+#-------------------------------------------------------------------------------
+# 1-parent model
 #-------------------------------------------------------------------------------
 VF_fit_bounds1 = [[0.01, 2],     # s ........ Gaussian a to b scale factor
                   [5000, 20000], # a ........ Gaussian a amplitude
@@ -265,6 +282,96 @@ VF_fit_bounds1 = [[0.01, 2],     # s ........ Gaussian a to b scale factor
                   [-20, -18],    # mu_b ..... Gaussian b location
                   [0.01, 3],     # sigma_b .. Gaussian b scale
                   [-5, 5]]       # skew_b ... Gaussian b skew
+
+# Prior samples for M1
+VF_prior_samples1 = np.random.uniform(low=np.array(VF_fit_bounds1).T[0], 
+                                      high=np.array(VF_fit_bounds1).T[1], 
+                                      size=(n_particles, n_dim1))
+
+# pocoMC sampler (parallel)
+if __name__ == '__main__':
+
+    with Pool(n_cpus) as pool:
+    
+        # Initialize sampler for M1
+        VF_sampler1 = pc.Sampler(n_particles=n_particles,
+                                 n_dim=n_dim1, 
+                                 log_likelihood=logLjoint1_skew, 
+                                 log_prior=log_prior, 
+                                 bounds=np.array(VF_fit_bounds1), 
+                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_prior_args=[np.array(VF_fit_bounds1)], 
+                                 pool=pool)
+        
+        # Run sampler
+        VF_sampler1.run(VF_prior_samples1)
+
+# Get results
+VF_results1 = VF_sampler1.results
+
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_rabsmag_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results1), temp_outfile)
+temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 400))
+
+exit()
+'''
+#-------------------------------------------------------------------------------
+# 2-parent model
+#-------------------------------------------------------------------------------
+VF_fit_bounds2 = [[5000, 15000], # a1 ........ Gaussian A amplitude
+                  [-22, -20],    # mu_a1 ..... Gaussian A location
+                  [0.1, 30],     # sigma_a1 .. Gaussian A scale
+                  [0, 30],       # skew_a1 ... Gaussian A skew
+                  [10000, 20000], # b1 ........ Gaussian B amplitude
+                  [-20, -16],    # mu_b1 ..... Gaussian B location
+                  [0.01, 3],     # sigma_b1 .. Gaussian B scale
+                  [-10, 10],     # skew_b1 ... Gaussian B skew
+                  [1000, 10000], # a2 ........ Gaussian A amplitude
+                  [-22, -20],    # mu_a2 ..... Gaussian A location
+                  [0.1, 5],      # sigma_a2 .. Gaussian A scale
+                  [-5, 5],       # skew_a2 ... Gaussian A skew
+                  [1000, 10000], # b2 ........ Gaussian B amplitude
+                  [-20, -16],    # mu_b2 ..... Gaussian B location
+                  [0.1, 3],      # sigma_b2 .. Gaussian B scale
+                  [-5, 5]]       # skew_b2 ... Gaussian B skew
+
+# Prior samples for M2
+VF_prior_samples2 = np.random.uniform(low=np.array(VF_fit_bounds2).T[0], 
+                                      high=np.array(VF_fit_bounds2).T[1], 
+                                      size=(n_particles, n_dim2))
+
+# pocoMC sampler (parallel)
+if __name__ == '__main__':
+    
+    with Pool(n_cpus) as pool:
+        
+        # Initialize sampler for M2
+        VF_sampler2 = pc.Sampler(n_particles=n_particles, 
+                                 n_dim=n_dim2, 
+                                 log_likelihood=logLjoint2_skew, 
+                                 log_prior=log_prior, 
+                                 bounds=np.array(VF_fit_bounds2), 
+                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_prior_args=[np.array(VF_fit_bounds2)], 
+                                 pool=pool)
+        
+        # Run sampler
+        VF_sampler2.run(VF_prior_samples2)
+
+# Get results
+VF_results2 = VF_sampler2.results
+
+# Picle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_rabsmag_VoidFinder.pickle', 
+                    'wb')
+pickle.dump((VF_results2), temp_outfile)
+temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 400))
 ################################################################################
 
 
