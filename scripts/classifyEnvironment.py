@@ -29,8 +29,8 @@ from vast.voidfinder.distance import z_to_comoving_dist
 #void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/SDSS/python_implementation/'
 #void_filename = void_catalog_directory + 'kias1033_5_MPAJHU_ZdustOS_main_comoving_holes.txt'
 
-void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/public/v1.1.0/'
-void_filename = void_catalog_directory + 'VoidFinder-nsa_v1_0_1_main_comoving_holes.txt'
+void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/public/v1.3.0/'
+void_filename = void_catalog_directory + 'VoidFinder-nsa_v1_0_1_Planck2018_main_comoving_holes.txt'
 
 dist_metric = 'comoving'
 #-------------------------------------------------------------------------------
@@ -47,14 +47,15 @@ mask_filename = void_catalog_directory + 'NSA_main_mask.pickle'
 #-------------------------------------------------------------------------------
 # FILE OF OBJECTS TO BE CLASSIFIED
 #-------------------------------------------------------------------------------
-#data_directory = '/Users/kellydouglass/Documents/Research/data/'
-data_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/dr17/manga/spectro/redux/v3_1_1/'
+data_directory = '/Users/kellydouglass/Documents/Research/data/'
+#data_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/dr17/manga/spectro/redux/v3_1_1/'
 
 #galaxy_file = input('Galaxy data file (with extension): ')
 #galaxy_filename = '/Users/kellydouglass/Documents/Drexel/Research/Data/kias1033_5_P-MJD-F_MPAJHU_ZdustOS_stellarMass_BPT_SFR_NSA_correctVflag.txt'
 #galaxy_filename = '/Users/kellydouglass/Documents/Drexel/Research/Data/kias1033_5_P-MJD-F_MPAJHU_ZdustOS_stellarMass_BPT_SFR_NSA_correctVflag_Voronoi_CMD.txt'
 #galaxy_filename = data_directory + 'kias1033_5_MPAJHU_ZdustOS_NSAv012_CMDJan2020.txt'
-galaxy_filename = data_directory + 'drpall-v3_1_1.fits'
+#galaxy_filename = data_directory + 'drpall-v3_1_1.fits'
+galaxy_filename = 
 
 #galaxy_file_format = 'commented_header'
 galaxy_file_format = 'fits'
