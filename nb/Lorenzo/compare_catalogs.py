@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
+
 from astropy.table import Table
 import numpy as np
 import time
@@ -5,10 +8,6 @@ from sklearn import neighbors
 import pickle
 import argparse
 import sys
-
-# Create argument parser
-# import argparse
-import pickle
 
 # Create argument parser
 parser = argparse.ArgumentParser()
@@ -56,26 +55,46 @@ rmax = args.rmax
 
 # Get algorithm comparison option
 compare = args.compare
+data_files = args.data_files
+# file1 = open(data_files[0], "r")
+# file2 = open(data_files[1], "r")
+# file3 = open(data_files[2], "r")
+# file4 = open(data_files[3], "r")
 
 if compare == 0:
     # Get 4 txt files from user: 2 data table files for comoving holes of galaxy, 2 data table files for comoving maximal of galaxy.
-    comoving_holes_galaxy_file_1 = input(
-        "Enter the first data table file for comoving holes of galaxy: ")
+    # comoving_holes_galaxy_file_1 = input(
+    #     "Enter the first data table file for comoving holes of galaxy: ")
+    # data_table_V1 = Table.read(
+    #     comoving_holes_galaxy_file_1, format="ascii.commented_header")
+
+    # comoving_holes_galaxy_file_2 = input(
+    #     "Enter the second data table file for comoving holes of galaxy: ")
+    # data_table_V2 = Table.read(
+    #     comoving_holes_galaxy_file_2, format="ascii.commented_header")
+
+    # comoving_maximal_galaxy_file_1 = input(
+    #     "Enter the first data table file for comoving maximal of galaxy: ")
+    # data_table_V1max = Table.read(
+    #     comoving_maximal_galaxy_file_1, format="ascii.commented_header")
+
+    # comoving_maximal_galaxy_file_2 = input(
+    #     "Enter the second data table file for comoving maximal of galaxy: ")
+    # data_table_V2max = Table.read(
+    #     comoving_maximal_galaxy_file_2, format="ascii.commented_header")
+    comoving_holes_galaxy_file_1 = open(data_files[0], "r")
     data_table_V1 = Table.read(
         comoving_holes_galaxy_file_1, format="ascii.commented_header")
 
-    comoving_holes_galaxy_file_2 = input(
-        "Enter the second data table file for comoving holes of galaxy: ")
+    comoving_holes_galaxy_file_2 = open(data_files[1], "r")
     data_table_V2 = Table.read(
         comoving_holes_galaxy_file_2, format="ascii.commented_header")
 
-    comoving_maximal_galaxy_file_1 = input(
-        "Enter the first data table file for comoving maximal of galaxy: ")
+    comoving_maximal_galaxy_file_1 = open(data_files[2], "r")
     data_table_V1max = Table.read(
         comoving_maximal_galaxy_file_1, format="ascii.commented_header")
 
-    comoving_maximal_galaxy_file_2 = input(
-        "Enter the second data table file for comoving maximal of galaxy: ")
+    comoving_maximal_galaxy_file_2 = open(data_files[3], "r")
     data_table_V2max = Table.read(
         comoving_maximal_galaxy_file_2, format="ascii.commented_header")
 
