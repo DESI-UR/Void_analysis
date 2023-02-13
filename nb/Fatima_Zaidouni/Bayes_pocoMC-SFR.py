@@ -37,7 +37,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -122,7 +122,7 @@ n_cpus = 10
 
 
 
-
+'''
 ################################################################################
 # Fit the SFR distributions with skewnormal distributions for V2
 #
@@ -138,7 +138,7 @@ x, n1, n2, dn1, dn2 = bin_data(SFR[wall_v2],
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-'''
+
 V2_fit_bounds1 = [[1, 5],        # s ........ Gaussian 1 to 2 scale factor
                   [500, 8000],   # a ........ Gaussian a amplitude
                   [-2.5, -0.75], # mu_a ..... Gaussian a location
@@ -187,11 +187,11 @@ temp_outfile.close()
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 350))
 
 exit()
-'''
+
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-'''
+
 V2_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A1 amplitude
                   [-2, -0.75],   # mu_a1 ..... Gaussian A1 location
                   [0.01, 2],     # sigma_a1 .. Gaussian A1 scale
@@ -251,8 +251,8 @@ temp_outfile.close()
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 350))
 
 exit()
-'''
 ################################################################################
+'''
 
 
 
