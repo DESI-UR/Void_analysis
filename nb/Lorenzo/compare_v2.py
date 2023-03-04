@@ -10,6 +10,7 @@ from vast.voidfinder._voidfinder_cython_find_next import MaskChecker
 from vast.voidfinder.distance import z_to_comoving_dist
 from vast.voidfinder import ra_dec_to_xyz
 import pickle
+import pandas as pd
 
 
 mask_file_name = "/Users/lorenzomendoza/Desktop/Research/Function/NSA_main_mask.pickle"
@@ -222,6 +223,49 @@ def count_points(points_in_mask, galzones_V1, galzones_V2, V2_gz):
     print('\nNumber of points outside V2:', count_out_V2)
     print("\nThis is the total number of points: {}".format(n_points))
     # print("\nThis is the total number of points in Delaunay: {}".format(total_DEL))
+    return (count_in_V1, count_out_V1, count_in_V2, count_out_V2, inside_both, inside_neither, inside_V1, inside_V2, n_points)
+
+
+def calculate_ratios_and_stats(count_in_V1, count_out_V1, count_in_V2, count_out_V2, inside_both, inside_neither, inside_V1, inside_V2, n_points):
+    r_V1 = count_in_V1 / n_points
+    r_V2 = count_in_V2 / n_points
+    r_V1_V2 = np.sum(inside_both) / n_points
+    r_not_V1_V2 = np.sum(inside_neither) / n_points
+    r_V1_not_V2 = np.sum(inside_V1) / n_points
+    r_V2_not_V1 = np.sum(inside_V2) / n_points
+
+    average_V1 = np.mean(count_in_V1)
+    r_average_V1 = average_V1 / n_points
+    std_V1 = np.std(count_in_V1)
+    r_std_V1 = std_V1 / n_points
+
+    average_V2 = np.mean(count_in_V2)
+    r_average_V2 = average_V2 / n_points
+    std_V2 = np.std(count_in_V2)
+    r_std_V2 = std_V2 / n_points
+
+    average_inside = np.mean(inside_both)
+    r_average_inside = average_inside / n_points
+    std_both = np.std(inside_both)
+    r_std_both = std_both / n_points
+
+    average_outside = np.mean(inside_neither)
+    r_average_outside = average_outside / n_points
+    std_outside = np.std(inside_neither)
+    r_std_outside = std_outside / n_points
+
+    results = pd.DataFrame({
+        'Category': ['V1', 'V2', 'Both', 'Neither', 'V1 not V2', 'V2 not V1'],
+        'Number of points': [count_in_V1, count_in_V2, np.sum(inside_both), np.sum(inside_neither), np.sum(inside_V1), np.sum(inside_V2)],
+        'Number of points outside': [count_out_V1, count_out_V2, np.nan, np.nan, np.nan, np.nan],
+        'Ratio of points': [r_V1, r_V2, r_V1_V2, r_not_V1_V2, r_V1_not_V2, r_V2_not_V1],
+        'Average number of points': [average_V1, average_V2, average_inside, average_outside, np.nan, np.nan],
+        'Standard deviation of points': [std_V1, std_V2, std_both, std_outside, np.nan, np.nan],
+        'Ratio of average number of points': [r_average_V1, r_average_V2, r_average_inside, r_average_outside, np.nan, np.nan],
+        'Ratio of standard deviation': [r_std_V1, r_std_V2, r_std_both, r_std_outside, np.nan, np.nan]
+    })
+
+    return results.set_index('Category')
 
 
 xmin, xmax, ymin, ymax, zmin, zmax = calc_volume_boundaries(
@@ -234,4 +278,9 @@ b = pts.shape
 print(b)
 
 points_in_mask, points_boolean = mask_point_filter(pts, mask, mask_resolution)
-count_points(points_in_mask, V2_galzones, V2_galzones, V2_gz)
+(count_in_V1, count_out_V1, count_in_V2, count_out_V2, inside_both, inside_neither, inside_V1,
+ inside_V2, n_points) = count_points(points_in_mask, V2_galzones, V2_galzones, V2_gz)
+
+results = calculate_ratios_and_stats(count_in_V1, count_out_V1, count_in_V2,
+                                     count_out_V2, inside_both, inside_neither, inside_V1, inside_V2, n_points)
+print(results)
