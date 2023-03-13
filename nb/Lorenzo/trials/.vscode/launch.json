@@ -1,0 +1,109 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "VoidFinder",
+            "type": "python",
+            "request": "launch",
+            "program": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo/compare_catalogs.py",
+            "cwd": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo",
+            "args": [
+                "--mask_file_name",
+                "mask.pickle",
+                "--rmin",
+                "0",
+                "--rmax",
+                "312.89816",
+                "--compare",
+                "0",
+                "--data_files",
+                "VF_comoving_holes.txt",
+                "VF_comoving_maximal.txt",
+                "VF_comoving_holes.txt",
+                "VF_comoving_maximal.txt"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+    // "configurations": [
+    //     {
+    //         "name": "Python: Current File",
+    //         "type": "python",
+    //         "request": "launch",
+    //         "program": "${file}",
+    //         "console": "integratedTerminal",
+    //         "justMyCode": true
+    //     },
+    // {
+    //     "name": "VFvV2",
+    //     "type": "python",
+    //     "request": "launch",
+    //     "program": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo/compare_catalogs.py",
+    //     "cwd": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo",
+    //     "args": [
+    //         "--mask_file_name",
+    //         "mask.pickle",
+    //         "--rmin",
+    //         "0",
+    //         "--rmax",
+    //         "312.89816",
+    //         "--compare",
+    //         "1",
+    //         "--omega",
+    //         "0.3089",
+    //         "--h",
+    //         "1.0",
+    //         "--data_files",
+    //         "V2_galzones.dat",
+    //         "V2_REVOLVER_zonevoids.dat",
+    //         "V2_REVOLVER_zonevoids.dat",
+    //          "V2_gal.txt",
+    //          "V2_galzones.dat",
+    //         "V2_gal.txt"
+    //     ],
+    //     "console": "integratedTerminal",
+    //     "justMyCode": true
+    // }
+    // {
+    //     "name": "VFvV2",
+    //     "type": "python",
+    //     "request": "launch",
+    //     "program": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo/compare_catalogs.py",
+    //     "cwd": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo",
+    //     "args": [
+    //         "--mask_file_name",
+    //         "mask.pickle",
+    //         "--rmin",
+    //         "0",
+    //         "--rmax",
+    //         "312.89816",
+    //         "--compare",
+    //         "2",
+    //         "--omega",
+    //         "0.3089",
+    //         "--h",
+    //         "1.0",
+    //         "--data_files",
+    //         "VF_comoving_holes.txt",
+    //         "VF_comoving_maximal.txt",
+    //         "V2_galzones.dat",
+    //         "V2_REVOLVER_zonevoids.dat",
+    //         "V2_gal.txt"
+    //     ],
+    //     "console": "integratedTerminal",
+    //     "justMyCode": true
+    // }
+    //]
+}
