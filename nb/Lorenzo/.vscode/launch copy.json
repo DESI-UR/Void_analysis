@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "V2",
+            "type": "python",
+            "request": "launch",
+            "program": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo/compare_catalogs.py",
+            "cwd": "/Users/lorenzomendoza/Documents/Research/Void_analysis/nb/Lorenzo",
+            "args": [
+                "--mask_file_name",
+                "mask.pickle",
+                "--rmin",
+                "0",
+                "--rmax",
+                "312.89816",
+                "--compare",
+                "1",
+                "--omega",
+                "0.3089",
+                "--h",
+                "1.0",
+                "--data_files",
+                "V2_galzones.dat",
+                "V2_galzones.dat",
+                "V2_REVOLVER_zonevoids.dat",
+                "V2_REVOLVER_zonevoids.dat",
+                "V2_gal.txt",
+                "V2_gal.txt"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
