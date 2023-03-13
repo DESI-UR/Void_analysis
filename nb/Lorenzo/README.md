@@ -63,20 +63,20 @@ Outputs:
 The following portion contains commands for running CatalogComparer under different contexts.
 
 #### Voidfinder Comparisons
-The Voidfinder Comparisons procedure allows for the comparison of two Voidfinder catalogs. This can be useful when comparing Voidfinder catalogs from different surveys or when comparing Voidfinder catalogs generated using different Voidfinder algorithms. To use this procedure, you simply need to call the following command
+The Voidfinder Comparisons procedure allows for the comparison of two Voidfinder catalogs. To use this procedure, you simply need to call the following command
 ```
 python compare_catalogs.py --mask_file_name mask.pickle --rmin 0 --rmax 312.89816 --compare 0 --data_files VF_comoving_holes.txt V
 F_comoving_maximal.txt VF_comoving_holes.txt VF_comoving_maximal.txt 
 ```
 
 #### V^2 Comparisons
-The V^2 Comparisons procedure allows for the comparison of two V^2 catalogs. This can be useful when comparing V^2 catalogs from different surveys or when comparing V^2 catalogs generated using different Voidfinder algorithms. To use this procedure, you need to call the following command:
+The V^2 Comparisons procedure allows for the comparison of two V^2 catalogs. To use this procedure, you need to call the following command:
 ```
 python compare_catalogs.py --mask_file_name mask.pickle --rmin 0 --rmax 312.89816 --compare 1 --omega 0.3089 --h 1.0 --data_files 
 V2_galzones.dat V2_REVOLVER_zonevoids.dat V2_REVOLVER_zonevoids.dat V2_gal.txt V2_galzones.dat V2_gal.txt 
 ```
 #### Voidfinder Comparison to V^2 Performance
-The Voidfinder Comparison to V^2 Performance procedure allows for the comparison of a Voidfinder catalog and a V^2 catalog. This can be useful when comparing the performance of Voidfinder and V^2 algorithms or when comparing catalogs generated using different parameters. To use this procedure, you need to call the following command:
+The Voidfinder Comparison to V^2 Performance procedure allows for the comparison of a Voidfinder catalog and a V^2 catalog. To use this procedure, you need to call the following command:
 
 ```
 python compare_catalogs.py --mask_file_name mask.pickle --rmin 0 --rmax 312.89816 --compare 2 --omega 0.3089 --h 1.0 --data_files VF_comoving_holes.txt VF_comoving_maximal.txt V2_galzones.dat V2_REVOLVER_zonevoids.dat V2_gal.txt 
