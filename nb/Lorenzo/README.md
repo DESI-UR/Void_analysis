@@ -1,6 +1,6 @@
 # CatalogComparer
 
-*Required, __Important__:* Please read the documentation and is install [VAST](https://vast.readthedocs.io/en/latest/index.html) before using this software as this tool is to compare catalogs produced from the VAST.
+*Required, __Important__:* Please read the documentation and is install [VAST](https://vast.readthedocs.io/en/latest/index.html) before using this software as this tool is to compare catalogs produced the VAST.
 
 ## Contents
 * [Setup](#setup)
