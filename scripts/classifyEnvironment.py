@@ -29,8 +29,8 @@ from vast.voidfinder.distance import z_to_comoving_dist
 #void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/SDSS/python_implementation/'
 #void_filename = void_catalog_directory + 'kias1033_5_MPAJHU_ZdustOS_main_comoving_holes.txt'
 
-void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/public/v1.3.0/'
-void_filename = void_catalog_directory + 'VoidFinder-nsa_v1_0_1_Planck2018_main_comoving_holes.txt'
+void_catalog_directory = '/Users/kellydouglass/Documents/Research/voids/void_catalogs/public/v1.3.0/Planck2018/'
+void_filename = void_catalog_directory + 'VoidFinder-nsa_v1_0_1_Planck2018_comoving_holes.txt'
 
 dist_metric = 'comoving'
 #-------------------------------------------------------------------------------
@@ -47,18 +47,20 @@ mask_filename = void_catalog_directory + 'NSA_main_mask.pickle'
 #-------------------------------------------------------------------------------
 # FILE OF OBJECTS TO BE CLASSIFIED
 #-------------------------------------------------------------------------------
-data_directory = '/Users/kellydouglass/Documents/Research/data/'
+#data_directory = '/Users/kellydouglass/Documents/Research/data/'
 #data_directory = '/Users/kellydouglass/Documents/Research/data/SDSS/dr17/manga/spectro/redux/v3_1_1/'
+data_directory = '/Users/kellydouglass/Documents/Research/Rotation_curves/Nitya_Ravi/'
 
 #galaxy_file = input('Galaxy data file (with extension): ')
 #galaxy_filename = '/Users/kellydouglass/Documents/Drexel/Research/Data/kias1033_5_P-MJD-F_MPAJHU_ZdustOS_stellarMass_BPT_SFR_NSA_correctVflag.txt'
 #galaxy_filename = '/Users/kellydouglass/Documents/Drexel/Research/Data/kias1033_5_P-MJD-F_MPAJHU_ZdustOS_stellarMass_BPT_SFR_NSA_correctVflag_Voronoi_CMD.txt'
 #galaxy_filename = data_directory + 'kias1033_5_MPAJHU_ZdustOS_NSAv012_CMDJan2020.txt'
 #galaxy_filename = data_directory + 'drpall-v3_1_1.fits'
-galaxy_filename = 
+#galaxy_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+galaxy_filename = data_directory + 'master_table_Halpha_BB_HI_H2_MxCG_R90_CMD_ZPG16R_SFR_MZ_phi.txt'
 
-#galaxy_file_format = 'commented_header'
-galaxy_file_format = 'fits'
+galaxy_file_format = 'commented_header'
+#galaxy_file_format = 'fits'
 ################################################################################
 
 
@@ -117,20 +119,28 @@ if galaxy_file_format == 'ecsv':
 
 elif galaxy_file_format == 'commented_header':
     galaxies = Table.read( galaxy_filename, format='ascii.' + galaxy_file_format)
-
+    '''
     z_col = 'redshift'
     ra_col = 'ra'
     dec_col = 'dec'
+    '''
+    z_col = 'NSA_redshift'
+    ra_col = 'NSA_RA'
+    dec_col = 'NSA_DEC'
 
 elif galaxy_file_format == 'fits':
     hdul = fits.open(galaxy_filename)
     galaxies = Table(hdul[1].data)
     hdul.close()
-
+    
     z_col = 'z'
     ra_col = 'objra'
     dec_col = 'objdec'
-
+    '''
+    z_col = 'Z'
+    ra_col = 'RA'
+    dec_col = 'DEC'
+    '''
 else:
     print('Galaxy file format not known.')
     exit()
@@ -141,7 +151,7 @@ else:
 # Read in survey mask
 #-------------------------------------------------------------------------------
 mask_infile = open(mask_filename, 'rb')
-mask, mask_resolution = pickle.load(mask_infile)
+mask, mask_resolution, r_range = pickle.load(mask_infile)
 mask_infile.close()
 #-------------------------------------------------------------------------------
 
@@ -166,11 +176,11 @@ if dist_metric == 'comoving':
 
     galaxies_r = galaxies['Rgal']
 
-    r_range = z_to_comoving_dist(np.array(z_range, dtype=np.float32), Omega_M, h)
+    #r_range = z_to_comoving_dist(np.array(z_range, dtype=np.float32), Omega_M, h)
 else:
     galaxies_r = c*galaxies[z_col]/H
 
-    r_range = c*z_range/H
+    #r_range = c*z_range/H
 
 
 # Calculate x-coordinates
@@ -194,7 +204,7 @@ print('Coordinates converted')
 #-------------------------------------------------------------------------------
 print('Identifying environment')
 
-galaxies['vflag'] = 9
+galaxies['vflag_VF'] = 9
 
 for i in range(len(galaxies)):
 
@@ -202,16 +212,16 @@ for i in range(len(galaxies)):
 
     if galaxies_r[i] > 0:
     
-    if np.all(np.isfinite([galaxies_x[i], galaxies_y[i], galaxies_z[i]])):
+        if np.all(np.isfinite([galaxies_x[i], galaxies_y[i], galaxies_z[i]])):
 
-        galaxies['vflag'][i] = determine_vflag(galaxies_x[i], 
-                                               galaxies_y[i], 
-                                               galaxies_z[i], 
-                                               voids, 
-                                               mask, 
-                                               mask_resolution, 
-                                               r_range[0], 
-                                               r_range[1])
+            galaxies['vflag_VF'][i] = determine_vflag(galaxies_x[i], 
+                                                      galaxies_y[i], 
+                                                      galaxies_z[i], 
+                                                      voids, 
+                                                      mask, 
+                                                      mask_resolution, 
+                                                      r_range[0], 
+                                                      r_range[1])
 
 print('Environments identified')
 ################################################################################
