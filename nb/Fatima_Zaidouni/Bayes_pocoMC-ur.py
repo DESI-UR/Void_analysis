@@ -39,7 +39,7 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -124,7 +124,7 @@ n_cpus = 10
 
 
 
-
+"""
 ################################################################################
 # Fit the color distributions with skewnormal distributions for V2
 #
@@ -248,7 +248,7 @@ temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2.pickle', 'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
 ################################################################################
-
+"""
 
 
 
@@ -266,6 +266,7 @@ temp_outfile.close()
 x, n1, n2, dn1, dn2 = bin_data(ur_NSA[wall_vf], 
                                ur_NSA[void_vf], 
                                ur_bins)
+"""
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -286,11 +287,11 @@ VF_fit_bounds1 = [[0.1, 1],      # s ........ Gaussian 1 to 2 scale factor
                   [0.1, 2],      # sigma_a .. Gaussian a scale
                   [0, 5],        # skew_a ... Gaussian a skew
                   [500, 5000],   # b ........ Gaussian b amplitude
-                  [1.8, 2.5],    # mu_b ..... Gaussian b location
+                  [1.8, 2.25],   # mu_b ..... Gaussian b location
                   [0.1, 2],      # sigma_b .. Gaussian b scale
                   [-5, 0],       # skew_b ... Gaussian b skew
                   [1000, 8000],  # c ........ Gaussian c amplitude
-                  [2.5, 3.5],    # mu_c ..... Gaussian c location
+                  [2.25, 3.5],   # mu_c ..... Gaussian c location
                   [0.01, 2],     # sigma_c .. Gaussian c scale
                   [-5, 0]]       # skew_c ... Gaussian c skew
 
@@ -325,25 +326,36 @@ temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_VoidFinder.pickle',
                     'wb')
 pickle.dump((VF_results1), temp_outfile)
 temp_outfile.close()
+
+exit()
+"""
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-VF_fit_bounds2 = [[1000, 10000],  # a1 ........ Gaussian A amplitude
-                  [1, 2.1],      # mu_a1 ..... Gaussian A location
+VF_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A amplitude
+                  [1, 1.8],      # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
-                  [0, 5],       # skew_a1 ... Gaussian A skew
-                  [500, 10000],   # b1 ........ Gaussian B amplitude
-                  [2.1, 3.5],    # mu_b1 ..... Gaussian B location
+                  [0, 5],        # skew_a1 ... Gaussian A skew
+                  [500, 10000],  # b1 ........ Gaussian B amplitude
+                  [1.8, 2.25],   # mu_b1 ..... Gaussian B location
                   [0.01, 2],     # sigma_b1 .. Gaussian B scale
                   [-5, 0],       # skew_b1 ... Gaussian B skew
-                  [500, 10000], # a2 ........ Gaussian A amplitude
-                  [1, 2.1],      # mu_a2 ..... Gaussian A location
+                  [1000, 8000],  # c1 ........ Gaussian C amplitude
+                  [2.25, 3.5],   # mu_c1 ..... Gaussian C1 location
+                  [0.01, 2],     # sigma_c1 .. Gaussian C1 scale
+                  [-5, 5],       # skew_c1 ... Gaussian C1 skew
+                  [500, 10000],  # a2 ........ Gaussian A amplitude
+                  [1, 1.8],      # mu_a2 ..... Gaussian A location
                   [0.01, 2],     # sigma_a2 .. Gaussian A scale
                   [0, 5],        # skew_a2 ... Gaussian A skew
-                  [100, 5000],  # b2 ........ Gaussian B amplitude
-                  [2.1, 3.5],    # mu_b2 ..... Gaussian B location
+                  [100, 5000],   # b2 ........ Gaussian B amplitude
+                  [1.8, 2.25],   # mu_b2 ..... Gaussian B location
                   [0.01, 2],     # sigma_b2 .. Gaussian B scale
-                  [-5, 5]]       # skew_b2 ... Gaussian B skew
+                  [-5, 5],       # skew_b2 ... Gaussian B skew
+                  [100, 5000],   # c2 ........ Gaussian C2 amplitude
+                  [2.25, 3.5],   # mu_c2 ..... Gaussian C2 location
+                  [0.01, 2],     # sigma_c2 .. Gaussian C2 scale
+                  [-5, 5]]       # skew_c2 ... Gaussian C2 skew
 
 # Prior samples for M2
 VF_prior_samples2 = np.random.uniform(low=np.array(VF_fit_bounds2).T[0], 
@@ -361,7 +373,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint2_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(VF_fit_bounds2), 
-                                 log_likelihood_args=[n1, n2, x, 2], 
+                                 log_likelihood_args=[n1, n2, x, 3], 
                                  log_prior_args=[np.array(VF_fit_bounds2)], 
                                  pool=pool)
 
