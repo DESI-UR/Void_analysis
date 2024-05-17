@@ -29,18 +29,21 @@ nsa = Table.read(nsa_directory + nsa_filename,
 #-------------------------------------------------------------------------------
 # Void catalog
 #-------------------------------------------------------------------------------
-catalog_directory = '/Users/kdouglass/Documents/Research/Voids/void_catalogs/public/v1.3.0/'
+# catalog_directory = '/Users/kdouglass/Documents/Research/Voids/void_catalogs/public/v1.3.0/'
+catalog_directory = '/Users/kdouglass/Documents/Research/Voids/latex/DR7_catalog/ApJS/data_corrections_post_pub/'
 
 # cosmology = 'Planck2018'
-cosmology = 'WMAP5'
+# cosmology = 'WMAP5'
 
 # pruning = 'REVOLVER'
-pruning = 'VIDE'
+# pruning = 'VIDE'
 
-v2_filename = cosmology + '/V2_' + pruning + '-nsa_v1_0_1_' + cosmology + '_galzones.dat'
+# v2_filename = cosmology + '/V2_' + pruning + '-nsa_v1_0_1_' + cosmology + '_galzones.dat'
+v2_filename = 'apjsacabcft5_mrt.txt'
 
 v2_table = Table.read(catalog_directory + v2_filename, 
-                      format='ascii.commented_header')
+                      # format='ascii.commented_header')
+                      format='ascii.mrt')
 #-------------------------------------------------------------------------------
 ################################################################################
 
@@ -59,10 +62,14 @@ v2_table['NSAID'] = nsa['NSAID'][v2_table['NSAID']]
 ################################################################################
 # Save updated V2 file
 #-------------------------------------------------------------------------------
+'''
 updated_catalog_directory = catalog_directory[:-4] + '4.0/'
 
 v2_table.write(updated_catalog_directory + v2_filename, 
                format='ascii.commented_header')
+'''
+v2_table.write(catalog_directory + v2_filename[:-4] + '_updated.txt', 
+               format='ascii.mrt')
 ################################################################################
 
 
