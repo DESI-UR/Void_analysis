@@ -702,7 +702,15 @@ def Model_1_fit(bounds1, data1, data2, bins_, peaks, p0=None):
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def Model_1_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=''):
+def Model_1_plot(params, 
+                 data1, 
+                 data2, 
+                 bins_, 
+                 peaks, 
+                 label1_text='Wall', 
+                 label2_text='Void',
+                 xlabel_text='', 
+                 title_text=''):
     '''
     Plot the binned data and best-fit for the one-parent model.
 
@@ -745,17 +753,36 @@ def Model_1_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
     else:
         print('The mixture model for this many skew normals is not yet defined.')
         exit()
+        
+    ############################################################################
+    # Plot formatting
+    #---------------------------------------------------------------------------
+    if label1_text == 'Wall':
+        fmt1 = 'k.'
+    elif label1_text == 'Void':
+        fmt1 = 'r.'
+    else:
+        fmt1 = 'b.'
+    
+    if label2_text == 'Wall':
+        fmt2 = 'k.'
+    elif label2_text == 'Void':
+        fmt2 = 'r.'
+    else:
+        fmt2 = 'b.'
+    ############################################################################
+    
 
     ############################################################################
     # Plot distributions and best fits
     #---------------------------------------------------------------------------
     fig, ax = plt.subplots(1,1, figsize=(6,4), tight_layout=True)
 
-    ep = ax.errorbar(x, n1, yerr=dn1, fmt='k.')
-    ax.plot(x, m1, color=ep[0].get_color(), label='Wall')
+    ep = ax.errorbar(x, n1, yerr=dn1, fmt=fmt1)
+    ax.plot(x, m1, color=ep[0].get_color(), label=label1_text)
 
-    ep = ax.errorbar(x, n2, yerr=dn2, fmt='r.')
-    ax.plot(x, m2, color=ep[0].get_color(), label='Void')
+    ep = ax.errorbar(x, n2, yerr=dn2, fmt=fmt2)
+    ax.plot(x, m2, color=ep[0].get_color(), label=label2_text)
 
     ax.set_ylabel('count')
     ax.set_xlabel(xlabel_text)
@@ -1018,7 +1045,15 @@ def Model_2_fit(bounds2, data1, data2, bins_, peaks, p0=None):
 
 ################################################################################
 #-------------------------------------------------------------------------------
-def Model_2_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=''):
+def Model_2_plot(params, 
+                 data1, 
+                 data2, 
+                 bins_, 
+                 peaks, 
+                 label1_text='Wall', 
+                 label2_text='Void', 
+                 xlabel_text='', 
+                 title_text=''):
     '''
     Plot the binned data and best-fit for the two-parent model.
 
@@ -1037,6 +1072,9 @@ def Model_2_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
 
     peaks : integer
         Number of peaks in the parent model
+        
+    label1_text, label2_text: strings
+        Label for data1, data2, in legend.
 
     xlabel_text : string
         Label for x-axis of plot
@@ -1064,17 +1102,36 @@ def Model_2_plot(params, data1, data2, bins_, peaks, xlabel_text='', title_text=
     else:
         print('The mixture model for this many skew normals is not yet defined.')
         exit()
+        
+    ############################################################################
+    # Plot formatting
+    #---------------------------------------------------------------------------
+    if label1_text == 'Wall':
+        fmt1 = 'k.'
+    elif label1_text == 'Void':
+        fmt1 = 'r.'
+    else:
+        fmt1 = 'b.'
+    
+    if label2_text == 'Wall':
+        fmt2 = 'k.'
+    elif label2_text == 'Void':
+        fmt2 = 'r.'
+    else:
+        fmt2 = 'b.'
+    ############################################################################
+    
 
     ############################################################################
     # Plot distributions and best fits
     #---------------------------------------------------------------------------
     fig, ax = plt.subplots(1,1, figsize=(6,4), tight_layout=True)
 
-    ep = ax.errorbar(x, n1, yerr=dn1, fmt='k.')
-    ax.plot(x, m1, color=ep[0].get_color(), label='Wall')
+    ep = ax.errorbar(x, n1, yerr=dn1, fmt=fmt1)
+    ax.plot(x, m1, color=ep[0].get_color(), label=label1_text)
 
-    ep = ax.errorbar(x, n2, yerr=dn2, fmt='r.')
-    ax.plot(x, m2, color=ep[0].get_color(), label='Void')
+    ep = ax.errorbar(x, n2, yerr=dn2, fmt=fmt2)
+    ax.plot(x, m2, color=ep[0].get_color(), label=label2_text)
 
     ax.set_ylabel('count')
     ax.set_xlabel(xlabel_text)
