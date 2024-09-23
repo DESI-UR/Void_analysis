@@ -44,7 +44,7 @@ def rmv(array, out): # removing galaxies in "out" from galaxies in "array"
 ################################################################################
 # Define vflag_V2
 #-------------------------------------------------------------------------------
-def determine_vflag_V2(gals, galzone, zonevoid, z_max, Omega_M0, h):
+def determine_vflag_V2(gals, galzones, zonevoids, z_max, Omega_M0, h):
 	'''
 	Determine the galaxy environment (void, wall, edge, out) for galaxies based 
 	on a V2 void catalog.
@@ -56,11 +56,11 @@ def determine_vflag_V2(gals, galzone, zonevoid, z_max, Omega_M0, h):
 	gals : astropy table
 		List of galaxies for which to define the environment
 
-	galzone : astropy table
+	galzones : astropy table
 		Output of V2 that defines which zone each galaxy belongs to.  This list 
 		of galaxies is expected to be a subset of gals.
 
-	zonevoid : astropy table
+	zonevoids : astropy table
 		Output of V2 that defines which void each zone belongs to.
 
 	z_max : float
@@ -96,14 +96,14 @@ def determine_vflag_V2(gals, galzone, zonevoid, z_max, Omega_M0, h):
 	############################################################################
 	# Identify edge galaxies in the volume-limited sample
 	#---------------------------------------------------------------------------
-	edge_gal = galzones['GAL'][galzones['EDGE'].astype(bool)]
+	edge_gal = galzones['TARGET'][galzones['EDGE'].astype(bool)]
 	############################################################################
 
 
 	############################################################################
 	# Identify galaxies outsde the volume-limited mask
 	#---------------------------------------------------------------------------
-	out_gal = galzones['GAL'][galzones['OUT'].astype(bool)]
+	out_gal = galzones['TARGET'][galzones['OUT'].astype(bool)]
 	############################################################################
 
 
@@ -114,7 +114,7 @@ def determine_vflag_V2(gals, galzone, zonevoid, z_max, Omega_M0, h):
 
 	void_gal_ = []
 	for i in void_zones:
-		void_gal_.append(list(galzones['GAL'][galzones['ZONE'] == i]))
+		void_gal_.append(list(galzones['TARGET'][galzones['ZONE'] == i]))
 	void_gal_flat = flatten(void_gal_)
 
 	void_gal = rmv(void_gal_flat, edge_gal) # eliminate edge galaxies in void zones
@@ -129,7 +129,7 @@ def determine_vflag_V2(gals, galzone, zonevoid, z_max, Omega_M0, h):
 
 	non_void_gal = []
 	for i in non_void_zones:
-		non_void_gal.append(list(galzones['GAL'][galzones['ZONE'] == i]))
+		non_void_gal.append(list(galzones['TARGET'][galzones['ZONE'] == i]))
 
 	wall_gal = rmv(flatten(non_void_gal), edge_gal) # eliminate edge galaxies
 	wall_gal = rmv(wall_gal, out_gal) # eliminate galaxies outside the mask
