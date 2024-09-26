@@ -39,7 +39,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+# data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -68,14 +69,14 @@ gr_NSA = np.array(catalog_main['g_r'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2'] == 0
-void_v2 = catalog_main['vflag_V2'] == 1
+wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
+void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
-wall_vf = catalog_main['vflag_VF'] == 0
-void_vf = catalog_main['vflag_VF'] == 1
+#wall_vf = catalog_main['vflag_VF'] == 0
+#void_vf = catalog_main['vflag_VF'] == 1
 #edge_vf = catalog_main['vflag_VF'] == 2
 #out_vf = catalog_main['vflag_VF'] == 9
 
@@ -124,7 +125,7 @@ n_cpus = 10
 
 
 
-'''
+
 ################################################################################
 # Fit the color distributions with skewnormal distributions for V2
 #
@@ -137,15 +138,16 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(gr_NSA[wall_v2], 
                                gr_NSA[void_v2], 
                                gr_bins)
+'''
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-V2_fit_bounds1 = [[0.1, 1],     # s ........ Gaussian a to b scale factor
+V2_fit_bounds1 = [[1, 5],       # s ........ Gaussian a to b scale factor
                   [500, 5000],  # a ........ Gaussian a amplitude
                   [0, 0.75],    # mu_a ..... Gaussian a location
                   [0.01, 3],    # sigma_a .. Gaussian a scale
                   [-5, 5],      # skew_a ... Gaussian a skew
-                  [100, 5000],  # b ........ Gaussian b amplitude
+                  [100, 1500],  # b ........ Gaussian b amplitude
                   [0.75, 1.25], # mu_b ..... Gaussian b location
                   [0.01, 3],    # sigma_b .. Gaussian b scale
                   [-5, 0]]      # skew_b ... Gaussian b skew
@@ -176,32 +178,30 @@ if __name__ == '__main__':
 # Get results
 V2_results1 = V2_sampler1.results
 
-# Corner plot of V2 M1
-pc.plotting.corner(V2_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_V2-0p3.pickle', 
+                    'wb')
+pickle.dump((V2_results1), temp_outfile)
+temp_outfile.close()
 
-# V2 log(z)
-lnzM1_V2 = V2_results1['logz'][-1]
+exit()
+'''
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-V2_fit_bounds2 = [[100, 2500],  # a1 ........ Gaussian A amplitude
+V2_fit_bounds2 = [[500, 2000],  # a1 ........ Gaussian A amplitude
                   [0.2, 0.7],   # mu_a1 ..... Gaussian A location
                   [0.01, 1],    # sigma_a1 .. Gaussian A scale
                   [0, 5],       # skew_a1 ... Gaussian A skew
-                  [500, 5000],  # b1 ........ Gaussian B amplitude
+                  [500, 1000],  # b1 ........ Gaussian B amplitude
                   [0.7, 1.2],   # mu_b1 ..... Gaussian B location
                   [0.01, 1],    # sigma_b1 .. Gaussian B scale
                   [-5, 0],      # skew_b1 ... Gaussian B skew
-                  [1000, 5000], # a2 ........ Gaussian A amplitude
+                  [2500, 6000], # a2 ........ Gaussian A amplitude
                   [0.2, 0.7],   # mu_a2 ..... Gaussian A location
                   [0.01, 1],    # sigma_a2 .. Gaussian A scale
                   [0, 5],       # skew_a2 ... Gaussian A skew
-                  [1000, 5000], # b2 ........ Gaussian B amplitude
+                  [1500, 5000], # b2 ........ Gaussian B amplitude
                   [0.7, 1.2],   # mu_b2 ..... Gaussian B location
                   [0.01, 1],    # sigma_b2 .. Gaussian B scale
                   [-5, 0]]      # skew_b2 ... Gaussian B skew
@@ -232,27 +232,15 @@ if __name__ == '__main__':
 # Get results
 V2_results2 = V2_sampler2.results
 
-# Corner plot of V2 M2
-pc.plotting.corner(V2_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_V2-0p3.pickle', 
+                    'wb')
+pickle.dump((V2_results2), temp_outfile)
+temp_outfile.close()
 
-# V2 log(z)
-lnzM2_V2 = V2_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_V2 = lnzM1_V2 - lnzM2_V2
-
-B12_V2 = np.exp(lnB12_V2)
-
-print('V2 g-r: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
-#-------------------------------------------------------------------------------
+exit()
 ################################################################################
-'''
+
 
 
 
