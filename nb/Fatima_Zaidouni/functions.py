@@ -7,7 +7,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 from scipy.stats import norm, skewnorm, ks_2samp
-from scipy.integrate import trapz
+# from scipy.integrate import trapz
 from scipy.special import gammaln
 from scipy.optimize import minimize
 
