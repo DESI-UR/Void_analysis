@@ -24,15 +24,9 @@ from multiprocessing import Pool
 
 import pickle
 
-import matplotlib
-import matplotlib.pyplot as plt
-
 from functions import log_prior, bin_data, logLjoint1_skew, logLjoint2_skew
 
 np.set_printoptions(threshold=sys.maxsize)
-
-matplotlib.rc('font', size=14)
-matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 
 
@@ -41,9 +35,10 @@ matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 # Data
 #-------------------------------------------------------------------------------
-#data_directory = '../../../../data/'
-data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_directory = '../../../../data/'
+# data_directory = '../../../../Data/NSA/'
+# data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -72,14 +67,14 @@ Mstar_NSA = np.log10(catalog_main['ELPETRO_MASS'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2'] == 0
-void_v2 = catalog_main['vflag_V2'] == 1
+wall_v2 = catalog_main['vflag_V2_noRmin'] == 0
+void_v2 = catalog_main['vflag_V2_noRmin'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
-wall_vf = catalog_main['vflag_VF'] == 0
-void_vf = catalog_main['vflag_VF'] == 1
+# wall_vf = catalog_main['vflag_VF'] == 0
+# void_vf = catalog_main['vflag_VF'] == 1
 #edge_vf = catalog_main['vflag_VF'] == 2
 #out_vf = catalog_main['vflag_VF'] == 9
 
@@ -132,7 +127,7 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(Mstar_NSA[wall_v2], 
                                Mstar_NSA[void_v2], 
                                Mstar_bins)
-'''
+
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -173,24 +168,13 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2.pickle', 'wb')
+temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2-noRmin.pickle', 
+                    'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
 
 exit()
-'''
-'''
-# Corner plot of V2 M1
-pc.plotting.corner(V2_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
 
-# V2 log(z)
-lnzM1_V2 = V2_results1['logz'][-1]
-'''
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
