@@ -35,8 +35,8 @@ np.set_printoptions(threshold=sys.maxsize)
 ################################################################################
 # Data
 #-------------------------------------------------------------------------------
-data_directory = '../../../../data/'
-# data_directory = '../../../../Data/NSA/'
+# data_directory = '../../../../data/'
+data_directory = '../../../../Data/NSA/'
 # data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
 data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
@@ -67,8 +67,8 @@ Mstar_NSA = np.log10(catalog_main['ELPETRO_MASS'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2_noRmin'] == 0
-void_v2 = catalog_main['vflag_V2_noRmin'] == 1
+wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
+void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
@@ -127,7 +127,7 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(Mstar_NSA[wall_v2], 
                                Mstar_NSA[void_v2], 
                                Mstar_bins)
-
+'''
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -168,17 +168,19 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2-noRmin.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2-0p3.pickle', 
                     'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
 
-exit()
+os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
 
+exit()
+'''
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-'''
+
 V2_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A amplitude
                   [9, 10.45],    # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
@@ -187,12 +189,12 @@ V2_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A amplitude
                   [10.45, 11],   # mu_b1 ..... Gaussian B location
                   [0.01, 2],     # sigma_b1 .. Gaussian B scale
                   [-5, 0],       # skew_b1 ... Gaussian B skew
-                  [1000, 10000], # a2 ........ Gaussian A amplitude
-                  [8, 10.25],    # mu_a2 ..... Gaussian A location
+                  [5000, 15000], # a2 ........ Gaussian A amplitude
+                  [5, 10.15],    # mu_a2 ..... Gaussian A location
                   [0.01, 2],     # sigma_a2 .. Gaussian A scale
                   [-5, 5],       # skew_a2 ... Gaussian A skew
-                  [1000, 20000], # b2 ........ Gaussian B amplitude
-                  [10.25, 11],   # mu_b2 ..... Gaussian B location
+                  [10000, 22000], # b2 ........ Gaussian B amplitude
+                  [10.15, 11],   # mu_b2 ..... Gaussian B location
                   [0.01, 2],     # sigma_b2 .. Gaussian B scale
                   [-5, 0]]       # skew_b2 ... Gaussian B skew
 
@@ -223,35 +225,14 @@ if __name__ == '__main__':
 V2_results2 = V2_sampler2.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_V2.pickle', 'wb')
+temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_V2-0p3.pickle', 
+                    'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
 
 os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
 
 exit()
-'''
-'''
-# Corner plot of V2 M2
-pc.plotting.corner(V2_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
-
-# V2 log(z)
-lnzM2_V2 = V2_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_V2 = lnzM1_V2 - lnzM2_V2
-
-B12_V2 = np.exp(lnB12_V2)
-
-print('V2 Mstar: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
-#-------------------------------------------------------------------------------
-'''
 ################################################################################
 
 

@@ -26,15 +26,9 @@ from multiprocessing import Pool
 
 import pickle
 
-#import matplotlib
-#import matplotlib.pyplot as plt
-
 from functions import log_prior, bin_data, logLjoint1_skew, logLjoint2_skew
 
 np.set_printoptions(threshold=sys.maxsize)
-
-#matplotlib.rc('font', size=14)
-#matplotlib.rc('font', family='DejaVu Sans')
 ################################################################################
 
 
@@ -45,7 +39,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+#data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -74,14 +69,14 @@ rabsmag_NSA = np.array(catalog_main['ELPETRO_ABSMAG'][:,4])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2'] == 0
-void_v2 = catalog_main['vflag_V2'] == 1
+wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
+void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
-wall_vf = catalog_main['vflag_VF'] == 0
-void_vf = catalog_main['vflag_VF'] == 1
+#wall_vf = catalog_main['vflag_VF'] == 0
+#void_vf = catalog_main['vflag_VF'] == 1
 #edge_vf = catalog_main['vflag_VF'] == 2
 #out_vf = catalog_main['vflag_VF'] == 9
 
@@ -121,7 +116,7 @@ n_cpus = 10
 
 
 
-'''
+
 ################################################################################
 # Fit the absolute magnitude distributions with skewnormal distributions for V2
 #
@@ -134,6 +129,7 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(rabsmag_NSA[wall_v2], 
                                rabsmag_NSA[void_v2], 
                                rabsmag_bins)
+'''
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -173,32 +169,32 @@ if __name__ == '__main__':
 # Get results
 V2_results1 = V2_sampler1.results
 
-# Corner plot of V2 M1
-pc.plotting.corner(V2_results1, 
-                   labels=labels1_bi, 
-                   dims=range(len(labels1_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M1_rabsmag_V2-0p3.pickle', 
+                    'wb')
+pickle.dump((V2_results1), temp_outfile)
+temp_outfile.close()
 
-# V2 log(z)
-lnzM1_V2 = V2_results1['logz'][-1]
+os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
+
+exit()
+'''
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
 V2_fit_bounds2 = [[500, 5000],   # a1 ........ Gaussian A amplitude
-                  [-22, -20.4],  # mu_a1 ..... Gaussian A location
+                  [-22, -20.3],  # mu_a1 ..... Gaussian A location
                   [0.1, 5],      # sigma_a1 .. Gaussian A scale
                   [-5, 10],      # skew_a1 ... Gaussian A skew
                   [5000, 20000], # b1 ........ Gaussian B amplitude
-                  [-20.4, -16],  # mu_b1 ..... Gaussian B location
+                  [-20.3, -16],  # mu_b1 ..... Gaussian B location
                   [0.1, 5],      # sigma_b1 .. Gaussian B scale
                   [-5, 5],       # skew_b1 ... Gaussian B skew
-                  [5000, 20000], # a2 ........ Gaussian A amplitude
+                  [11000, 20000], # a2 ........ Gaussian A amplitude
                   [-22, -20],    # mu_a2 ..... Gaussian A location
                   [0.1, 5],      # sigma_a2 .. Gaussian A scale
                   [0, 5],        # skew_a2 ... Gaussian A skew
-                  [5000, 20000], # b2 ........ Gaussian B amplitude
+                  [5000, 12000], # b2 ........ Gaussian B amplitude
                   [-20, -16],    # mu_b2 ..... Gaussian B location
                   [0.1, 5],      # sigma_b2 .. Gaussian B scale
                   [-5, 5]]       # skew_b2 ... Gaussian B skew
@@ -229,27 +225,17 @@ if __name__ == '__main__':
 # Get results
 V2_results2 = V2_sampler2.results
 
-# Corner plot of V2 M2
-pc.plotting.corner(V2_results2, 
-                   labels=labels2_bi, 
-                   dims=range(len(labels2_bi)), 
-                   show_titles=True, 
-                   quantiles=[0.16, 0.5, 0.84])
-plt.show()
+# Pickle results
+temp_outfile = open('pocoMC_results/sampler_results_M2_rabsmag_V2-0p3.pickle', 
+                    'wb')
+pickle.dump((V2_results2), temp_outfile)
+temp_outfile.close()
 
-# V2 log(z)
-lnzM2_V2 = V2_results2['logz'][-1]
-#-------------------------------------------------------------------------------
-# Calculate Bayes factor
-#-------------------------------------------------------------------------------
-lnB12_V2 = lnzM1_V2 - lnzM2_V2
+os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
 
-B12_V2 = np.exp(lnB12_V2)
-
-print('V2 Mr: B12 = {:.3g}; log(B12) = {:.3f}'.format(B12_V2, lnB12_V2*np.log10(np.exp(1))))
-#-------------------------------------------------------------------------------
+exit()
 ################################################################################
-'''
+
 
 
 

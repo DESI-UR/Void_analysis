@@ -184,6 +184,8 @@ temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_V2-0p3.pickle',
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
 
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
+
 exit()
 '''
 #-------------------------------------------------------------------------------
@@ -237,6 +239,8 @@ temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_V2-0p3.pickle',
                     'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
 exit()
 ################################################################################
@@ -304,6 +308,8 @@ temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_VoidFinder.pickle',
 pickle.dump((VF_results1), temp_outfile)
 temp_outfile.close()
 
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
+
 exit()
 '''
 #-------------------------------------------------------------------------------
@@ -357,6 +363,8 @@ temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_VoidFinder.pickle',
                     'wb')
 pickle.dump((VF_results2), temp_outfile)
 temp_outfile.close()
+
+os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 #-------------------------------------------------------------------------------
 ################################################################################
 
