@@ -157,10 +157,10 @@ V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian 1 to 2 scale factor
                   [1, 1.8],    # mu_a ..... Gaussian a location
                   [0.1, 2],    # sigma_a .. Gaussian a scale
                   [0, 5],      # skew_a ... Gaussian a skew
-                  [100, 5000], # b ........ Gaussian b amplitude
-                  [1.8, 2.4],  # mu_b ..... Gaussian b location
-                  [0.01, 2],   # sigma_b .. Gaussian b scale
-                  [-2.5, 2.5], # skew_b ... Gaussian b skew
+                  [1000, 500000000], # b ........ Gaussian b amplitude
+                  [0.5, 2.4],  # mu_b ..... Gaussian b location
+                  [0.01, 10000000], # sigma_b .. Gaussian b scale
+                  [-1000000, 0], # skew_b ... Gaussian b skew
                   [500, 5000], # c ........ Gaussian c amplitude
                   [2.4, 3.5],  # mu_c ..... Gaussian c location
                   [0.001, 1],  # sigma_c .. Gaussian c scale
