@@ -39,8 +39,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-#data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
-data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+#data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -69,8 +69,8 @@ ur_NSA = np.array(catalog_main['u_r'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2_noRmin'] == 0
-void_v2 = catalog_main['vflag_V2_noRmin'] == 1
+wall_v2 = catalog_main['vflag_V2'] == 0
+void_v2 = catalog_main['vflag_V2'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
@@ -113,10 +113,10 @@ labels2_tri = ['$a_1$', r'$\mu_{1a}$', r'$\sigma_{1a}$', 'skew$_{1a}$',
 n_particles = 1000
 
 # Number of parameters in M1
-n_dim1 = len(labels1_tri)
+n_dim1 = len(labels1_bi)
 
 # Number of parameters in M2
-n_dim2 = len(labels2_tri)
+n_dim2 = len(labels2_bi)
 
 # Number of CPUs
 n_cpus = 10
@@ -138,10 +138,10 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(ur_NSA[wall_v2], 
                                ur_NSA[void_v2], 
                                ur_bins)
+"""
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-'''
 V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian a to b scale factor
                   [500, 5000], # a ........ Gaussian a amplitude
                   [1, 2.1],    # mu_a ..... Gaussian a location
@@ -165,7 +165,7 @@ V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian 1 to 2 scale factor
                   [2.4, 3.5],  # mu_c ..... Gaussian c location
                   [0.001, 1],  # sigma_c .. Gaussian c scale
                   [-5, 0]]     # skew_c ... Gaussian c skew
-
+'''
 # Prior samples for M1
 V2_prior_samples1 = np.random.uniform(low=np.array(V2_fit_bounds1).T[0], 
                                       high=np.array(V2_fit_bounds1).T[1], 
@@ -182,7 +182,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint1_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(V2_fit_bounds1), 
-                                 log_likelihood_args=[n1, n2, x, 3], 
+                                 log_likelihood_args=[n1, n2, x, 2], 
                                  log_prior_args=[np.array(V2_fit_bounds1)], 
                                  pool=pool)
 
@@ -193,7 +193,7 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_V2-noRmin.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_V2-20241028.pickle', 
                     'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
@@ -201,11 +201,10 @@ temp_outfile.close()
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
 exit()
-
+"""
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-'''
 V2_fit_bounds2 = [[500, 10000],  # a1 ........ Gaussian A amplitude
                   [1, 2.1],      # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
@@ -247,7 +246,7 @@ V2_fit_bounds2 = [[1000, 8000],  # a1 ........ Gaussian A1 amplitude
                   [2.4, 3.5],    # mu_c2 ..... Gaussian C2 location
                   [0.01, 2],     # sigma_c2 .. Gaussian C2 width
                   [-5, 5]]       # skew_c2 ... Gaussian C2 skew
-
+'''
 # Prior samples for M2
 V2_prior_samples2 = np.random.uniform(low=np.array(V2_fit_bounds2).T[0], 
                                       high=np.array(V2_fit_bounds2).T[1], 
@@ -264,7 +263,7 @@ if __name__ == '__main__':
                                  log_likelihood=logLjoint2_skew, 
                                  log_prior=log_prior, 
                                  bounds=np.array(V2_fit_bounds2), 
-                                 log_likelihood_args=[n1, n2, x, 3], 
+                                 log_likelihood_args=[n1, n2, x, 2], 
                                  log_prior_args=[np.array(V2_fit_bounds2)], 
                                  pool=pool)
 
@@ -275,7 +274,8 @@ if __name__ == '__main__':
 V2_results2 = V2_sampler2.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2.pickle', 'wb')
+temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2-20241028.pickle', 
+                    'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
 

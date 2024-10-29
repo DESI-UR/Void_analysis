@@ -37,8 +37,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 # data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-# data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
-data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+#data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -67,8 +67,8 @@ Mstar_NSA = np.log10(catalog_main['ELPETRO_MASS'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
-void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
+wall_v2 = catalog_main['vflag_V2'] == 0
+void_v2 = catalog_main['vflag_V2'] == 1
 #edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
@@ -127,7 +127,7 @@ n_cpus = 10
 x, n1, n2, dn1, dn2 = bin_data(Mstar_NSA[wall_v2], 
                                Mstar_NSA[void_v2], 
                                Mstar_bins)
-'''
+"""
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2-0p3.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_Mstar_V2-20241028.pickle', 
                     'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
@@ -176,11 +176,10 @@ temp_outfile.close()
 os.system('play -nq -t alsa synth {} sine {}'.format(1, 440))
 
 exit()
-'''
+"""
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-
 V2_fit_bounds2 = [[1000, 10000], # a1 ........ Gaussian A amplitude
                   [9, 10.45],    # mu_a1 ..... Gaussian A location
                   [0.01, 2],     # sigma_a1 .. Gaussian A scale
@@ -225,7 +224,7 @@ if __name__ == '__main__':
 V2_results2 = V2_sampler2.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_V2-0p3.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M2_Mstar_V2-20241028.pickle', 
                     'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
