@@ -39,8 +39,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
-#data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
+#data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys_(1).fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -69,9 +69,9 @@ ur_NSA = np.array(catalog_main['u_r'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2'] == 0
-void_v2 = catalog_main['vflag_V2'] == 1
-#edge_v2 = catalog_main['vflag_V2'] == 2
+wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
+void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
+edge_v2 = catalog_main['vflag_V2_0p3rho'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
@@ -137,20 +137,23 @@ n_cpus = 10
 # Bin data
 x, n1, n2, dn1, dn2 = bin_data(ur_NSA[wall_v2], 
                                ur_NSA[void_v2], 
+                               #ur_NSA[void_v2 | wall_v2 | edge_v2],
                                ur_bins)
-"""
+
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
-V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian a to b scale factor
-                  [500, 5000], # a ........ Gaussian a amplitude
-                  [1, 2.1],    # mu_a ..... Gaussian a location
-                  [0.1, 3],    # sigma_a .. Gaussian a scale
-                  [0, 5],      # skew_a ... Gaussian a skew
-                  [100, 5000], # b ........ Gaussian b amplitude
-                  [2.1, 3.5],  # mu_b ..... Gaussian b location
-                  [0.001, 3],  # sigma_b .. Gaussian b scale
-                  [-5, 0]]     # skew_b ... Gaussian b skew
+
+# void v. wall
+V2_fit_bounds1 = [[1, 5],       # s ........ Gaussian a to b scale factor
+                  [500, 10000], # a ........ Gaussian a amplitude
+                  [1, 2.1],     # mu_a ..... Gaussian a location
+                  [0.1, 3],     # sigma_a .. Gaussian a scale
+                  [0, 5],       # skew_a ... Gaussian a skew
+                  [100, 5000],  # b ........ Gaussian b amplitude
+                  [2.1, 3.5],   # mu_b ..... Gaussian b location
+                  [0.001, 3],   # sigma_b .. Gaussian b scale
+                  [-5, 0]]      # skew_b ... Gaussian b skew
 '''
 V2_fit_bounds1 = [[1, 5],      # s ........ Gaussian 1 to 2 scale factor
                   [500, 5000], # a ........ Gaussian a amplitude
@@ -193,34 +196,36 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_V2-20241028.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_u-r_V2-0p3(1).pickle', 
                     'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
 
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
-exit()
-"""
+#exit()
+
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-V2_fit_bounds2 = [[500, 10000],  # a1 ........ Gaussian A amplitude
-                  [1, 2.1],      # mu_a1 ..... Gaussian A location
-                  [0.01, 2],     # sigma_a1 .. Gaussian A scale
-                  [-5, 5],       # skew_a1 ... Gaussian A skew
-                  [100, 5000],   # b1 ........ Gaussian B amplitude
-                  [2.1, 3.5],    # mu_b1 ..... Gaussian B location
-                  [0.01, 2],     # sigma_b1 .. Gaussian B scale
-                  [-5, 5],       # skew_b1 ... Gaussian B skew
-                  [1000, 20000], # a2 ........ Gaussian A amplitude
-                  [1, 2.1],      # mu_a2 ..... Gaussian A location
-                  [0.01, 2],     # sigma_a2 .. Gaussian A scale
-                  [0, 5],        # skew_a2 ... Gaussian A skew
-                  [500, 10000],  # b2 ........ Gaussian B amplitude
-                  [2.1, 3.5],    # mu_b2 ..... Gaussian B location
-                  [0.01, 2],     # sigma_b2 .. Gaussian B scale
-                  [-5, 0]]       # skew_b2 ... Gaussian B skew
+
+# void v. wall
+V2_fit_bounds2 = [[500, 10000],  # a1 ........ Gaussian A1 amplitude
+                  [1, 2.1],      # mu_a1 ..... Gaussian A1 location
+                  [0.01, 2],     # sigma_a1 .. Gaussian A1 scale
+                  [-5, 5],       # skew_a1 ... Gaussian A1 skew
+                  [100, 5000],   # b1 ........ Gaussian B1 amplitude
+                  [2.1, 3.5],    # mu_b1 ..... Gaussian B1 location
+                  [0.01, 2],     # sigma_b1 .. Gaussian B1 scale
+                  [-5, 5],       # skew_b1 ... Gaussian B1 skew
+                  [1000, 20000], # a2 ........ Gaussian A2 amplitude
+                  [1, 2.1],      # mu_a2 ..... Gaussian A2 location
+                  [0.01, 2],     # sigma_a2 .. Gaussian A2 scale
+                  [0, 5],        # skew_a2 ... Gaussian A2 skew
+                  [500, 10000],  # b2 ........ Gaussian B2 amplitude
+                  [2.1, 3.5],    # mu_b2 ..... Gaussian B2 location
+                  [0.01, 2],     # sigma_b2 .. Gaussian B2 scale
+                  [-5, 0]]       # skew_b2 ... Gaussian B2 skew
 '''
 V2_fit_bounds2 = [[1000, 8000],  # a1 ........ Gaussian A1 amplitude
                   [0.5, 1.5],    # mu_a1 ..... Gaussian A1 location
@@ -274,7 +279,7 @@ if __name__ == '__main__':
 V2_results2 = V2_sampler2.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2-20241028.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M2_u-r_V2-0p3(1).pickle', 
                     'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()

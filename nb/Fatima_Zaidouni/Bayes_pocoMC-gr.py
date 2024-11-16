@@ -39,8 +39,8 @@ np.set_printoptions(threshold=sys.maxsize)
 #-------------------------------------------------------------------------------
 #data_directory = '../../../../data/'
 data_directory = '../../../../Data/NSA/'
-data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
-#data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
+#data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys_(1).fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -69,9 +69,9 @@ gr_NSA = np.array(catalog_main['g_r'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2'] == 0
-void_v2 = catalog_main['vflag_V2'] == 1
-edge_v2 = catalog_main['vflag_V2'] == 2
+wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
+void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
+edge_v2 = catalog_main['vflag_V2_0p3rho'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
@@ -135,9 +135,9 @@ n_cpus = 10
 # skew normals to account for the extra bumps in the distributions.
 #-------------------------------------------------------------------------------
 # Bin data
-x, n1, n2, dn1, dn2 = bin_data(#gr_NSA[wall_v2], 
+x, n1, n2, dn1, dn2 = bin_data(gr_NSA[wall_v2], 
                                gr_NSA[void_v2], 
-                               gr_NSA[wall_v2 | void_v2 | edge_v2],
+                               #gr_NSA[wall_v2 | void_v2 | edge_v2],
                                gr_bins)
 """
 #-------------------------------------------------------------------------------
@@ -204,43 +204,61 @@ if __name__ == '__main__':
 V2_results1 = V2_sampler1.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_V2.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_g-r_V2-0p3(1).pickle', 
                     'wb')
 pickle.dump((V2_results1), temp_outfile)
 temp_outfile.close()
 
 os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
-exit()
+#exit()
 """
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
-'''
+
 # void v. wall
 V2_fit_bounds2 = [[500, 2000],  # a1 ........ Gaussian A amplitude
-                  [0.2, 0.7],   # mu_a1 ..... Gaussian A location
+                  [0.2, 0.515], # mu_a1 ..... Gaussian A location
                   [0.01, 1],    # sigma_a1 .. Gaussian A scale
                   [0, 5],       # skew_a1 ... Gaussian A skew
-                  [500, 1000],  # b1 ........ Gaussian B amplitude
+                  [500, 5000],  # b1 ........ Gaussian B amplitude
                   [0.7, 1.2],   # mu_b1 ..... Gaussian B location
                   [0.01, 1],    # sigma_b1 .. Gaussian B scale
                   [-5, 0],      # skew_b1 ... Gaussian B skew
                   [2500, 6000], # a2 ........ Gaussian A amplitude
                   [0.2, 0.7],   # mu_a2 ..... Gaussian A location
                   [0.01, 1],    # sigma_a2 .. Gaussian A scale
-                  [0, 5],       # skew_a2 ... Gaussian A skew
+                  [-5, 5],      # skew_a2 ... Gaussian A skew
+                  [500, 3000],  # b2 ........ Gaussian B amplitude
+                  [0.7, 1.2],   # mu_b2 ..... Gaussian B location
+                  [0.01, 1],    # sigma_b2 .. Gaussian B scale
+                  [-5, 0]]      # skew_b2 ... Gaussian B skew
+'''
+# wall v. all
+V2_fit_bounds2 = [[500, 2000],  # a1 ........ Gaussian A amplitude
+                  [0.2, 0.7],   # mu_a1 ..... Gaussian A location
+                  [0.152, 1],   # sigma_a1 .. Gaussian A scale
+                  [0, 5],       # skew_a1 ... Gaussian A skew
+                  [500, 5000],  # b1 ........ Gaussian B amplitude
+                  [0.7, 1.2],   # mu_b1 ..... Gaussian B location
+                  [0.01, 1],    # sigma_b1 .. Gaussian B scale
+                  [-5, 0],      # skew_b1 ... Gaussian B skew
+                  [2500, 10000], # a2 ........ Gaussian A amplitude
+                  [0.2, 0.7],   # mu_a2 ..... Gaussian A location
+                  [0.01, 1],    # sigma_a2 .. Gaussian A scale
+                  [0.3, 5],     # skew_a2 ... Gaussian A skew
                   [1500, 5000], # b2 ........ Gaussian B amplitude
                   [0.7, 1.2],   # mu_b2 ..... Gaussian B location
                   [0.01, 1],    # sigma_b2 .. Gaussian B scale
                   [-5, 0]]      # skew_b2 ... Gaussian B skew
 
-# wall v. all
-V2_fit_bounds2 = [[500, 2000],  # a1 ........ Gaussian A amplitude
+# void v. all
+V2_fit_bounds2 = [[2500, 6000], # a1 ........ Gaussian A amplitude
                   [0.2, 0.7],   # mu_a1 ..... Gaussian A location
                   [0.01, 1],    # sigma_a1 .. Gaussian A scale
                   [0, 5],       # skew_a1 ... Gaussian A skew
-                  [500, 1000],  # b1 ........ Gaussian B amplitude
+                  [500, 5000],  # b1 ........ Gaussian B amplitude
                   [0.7, 1.2],   # mu_b1 ..... Gaussian B location
                   [0.01, 1],    # sigma_b1 .. Gaussian B scale
                   [-5, 0],      # skew_b1 ... Gaussian B skew
@@ -253,24 +271,6 @@ V2_fit_bounds2 = [[500, 2000],  # a1 ........ Gaussian A amplitude
                   [0.01, 1],    # sigma_b2 .. Gaussian B scale
                   [-5, 0]]      # skew_b2 ... Gaussian B skew
 '''
-# void v. all
-V2_fit_bounds2 = [[2500, 6000], # a1 ........ Gaussian A amplitude
-                  [0.2, 0.7],   # mu_a1 ..... Gaussian A location
-                  [0.01, 1],    # sigma_a1 .. Gaussian A scale
-                  [0, 5],       # skew_a1 ... Gaussian A skew
-                  [1500, 5000], # b1 ........ Gaussian B amplitude
-                  [0.7, 1.2],   # mu_b1 ..... Gaussian B location
-                  [0.01, 1],    # sigma_b1 .. Gaussian B scale
-                  [-5, 0],      # skew_b1 ... Gaussian B skew
-                  [2500, 10000], # a2 ........ Gaussian A amplitude
-                  [0.2, 0.7],   # mu_a2 ..... Gaussian A location
-                  [0.01, 1],    # sigma_a2 .. Gaussian A scale
-                  [0.3, 5],     # skew_a2 ... Gaussian A skew
-                  [1500, 5000], # b2 ........ Gaussian B amplitude
-                  [0.7, 1.2],   # mu_b2 ..... Gaussian B location
-                  [0.01, 1],    # sigma_b2 .. Gaussian B scale
-                  [-5, 0]]      # skew_b2 ... Gaussian B skew
-
 # Prior samples for M2
 V2_prior_samples2 = np.random.uniform(low=np.array(V2_fit_bounds2).T[0], 
                                       high=np.array(V2_fit_bounds2).T[1], 
@@ -298,7 +298,7 @@ if __name__ == '__main__':
 V2_results2 = V2_sampler2.results
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_V2void.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M2_g-r_V2-0p3(1).pickle', 
                     'wb')
 pickle.dump((V2_results2), temp_outfile)
 temp_outfile.close()
