@@ -13,6 +13,8 @@ from astropy.io import fits
 
 import numpy as np
 
+from scipy.stats import uniform
+
 import sys
 
 import os
@@ -20,7 +22,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 
 import pocomc as pc
 
-from multiprocessing import Pool
+# from multiprocessing import Pool
 
 import pickle
 
@@ -35,10 +37,10 @@ np.set_printoptions(threshold=sys.maxsize)
 ################################################################################
 # Data
 #-------------------------------------------------------------------------------
-#data_directory = '../../../../data/'
-data_directory = '../../../../Data/NSA/'
-#data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
-data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
+data_directory = '../../../../data/'
+# data_directory = '../../../../Data/NSA/'
+data_filename = data_directory + 'NSA_v1_0_1_VAGC_vflag-V2-VF_updated.fits'
+# data_filename = data_directory + 'nsa_v1_0_1_VAGC_vflag-V2_sys.fits'
 
 hdu = fits.open(data_filename)
 data = Table(hdu[1].data)
@@ -67,9 +69,9 @@ sSFR = np.array(catalog_main['sSFR'])
 # Separate galaxies by their LSS classifications
 #-------------------------------------------------------------------------------
 # V2
-wall_v2 = catalog_main['vflag_V2_0p3rho'] == 0
-void_v2 = catalog_main['vflag_V2_0p3rho'] == 1
-#edge_v2 = catalog_main['vflag_V2'] == 2
+wall_v2 = catalog_main['vflag_V2'] == 0
+void_v2 = catalog_main['vflag_V2'] == 1
+edge_v2 = catalog_main['vflag_V2'] == 2
 #out_v2 = catalog_main['vflag_V2'] == 9
 
 # VoidFinder
@@ -129,11 +131,14 @@ n_cpus = 10
 # Bin data
 x, n1, n2, dn1, dn2 = bin_data(sSFR[wall_v2], 
                                sSFR[void_v2], 
+                               # sSFR[void_v2 | wall_v2 | edge_v2], 
                                sSFR_bins)
-'''
+
 #-------------------------------------------------------------------------------
 # 1-parent model
 #-------------------------------------------------------------------------------
+
+# void v. wall
 V2_fit_bounds1 = [[1, 5],          # s ........ Gaussian 1 to 2 scale factor
                   [1000, 10000],   # a ........ Gaussian a amplitude
                   [-12.5, -11.75], # mu_a ..... Gaussian a location
@@ -149,11 +154,20 @@ V2_fit_bounds1 = [[1, 5],          # s ........ Gaussian 1 to 2 scale factor
                   [-5, 0]]         # skew_c ... Gaussian c skew
 
 # Prior samples for M1
+'''
 V2_prior_samples1 = np.random.uniform(low=np.array(V2_fit_bounds1).T[0], 
                                       high=np.array(V2_fit_bounds1).T[1], 
                                       size=(n_particles, n_dim1))
+'''
+V2_uniform_priors1 = []
+for i in range(len(V2_fit_bounds1)):
+    prior = uniform(loc=V2_fit_bounds1[i][0], 
+                    scale=V2_fit_bounds1[i][1] - V2_fit_bounds1[i][0])
+    V2_uniform_priors1.append(prior)
+V2_prior_samples1 = pc.Prior(V2_uniform_priors1)
 
 # pocoMC sampler (parallel)
+'''
 if __name__ == '__main__':
 
     with Pool(n_cpus) as pool:
@@ -170,24 +184,38 @@ if __name__ == '__main__':
 
         # Run sampler
         V2_sampler1.run(V2_prior_samples1)
-        
+'''
+V2_sampler1 = pc.Sampler(V2_prior_samples1, 
+                         logLjoint1_skew, 
+                         n_dim=n_dim1,
+                         n_active=n_particles, 
+                         n_effective=None, 
+                         likelihood_args=[n1, n2, x, 3], 
+                         pool=n_cpus)
+
+V2_sampler1.run()
+
 # Get results
-V2_results1 = V2_sampler1.results
+# V2_results1 = V2_sampler1.results
+V2_results1_samples,_,_ = V2_sampler1.posterior(resample=True)
+V2_results1_logZ,_ = V2_sampler1.evidence()
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M1_sSFR_V2-0p3.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M1_sSFR_V2-20241108.pickle', 
                     'wb')
-pickle.dump((V2_results1), temp_outfile)
+# pickle.dump((V2_results1), temp_outfile)
+pickle.dump((V2_results1_samples, V2_results1_logZ), temp_outfile)
 temp_outfile.close()
 
-os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
+# os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
-exit()
-'''
+# exit()
+
 #-------------------------------------------------------------------------------
 # 2-parent model
 #-------------------------------------------------------------------------------
 
+# void v. wall
 V2_fit_bounds2 = [[100, 5000],     # a1 ........ Gaussian A1 amplitude
                   [-12.5, -11.9],  # mu_a1 ..... Gaussian A1 location
                   [0.001, 2],      # sigma_a1 .. Gaussian A1 scale
@@ -214,11 +242,20 @@ V2_fit_bounds2 = [[100, 5000],     # a1 ........ Gaussian A1 amplitude
                   [-5, 0]]         # skew_c2 ... Gaussian B2 skew
 
 # Prior samples for M2
+'''
 V2_prior_samples2 = np.random.uniform(low=np.array(V2_fit_bounds2).T[0], 
                                       high=np.array(V2_fit_bounds2).T[1], 
                                       size=(n_particles, n_dim2))
+'''
+V2_uniform_priors2 = []
+for i in range(len(V2_fit_bounds2)):
+    prior = uniform(loc=V2_fit_bounds2[i][0], 
+                    scale=V2_fit_bounds2[i][1] - V2_fit_bounds2[i][0])
+    V2_uniform_priors2.append(prior)
+V2_prior_samples2 = pc.Prior(V2_uniform_priors2)
 
 # pocoMC sampler (parallel)
+'''
 if __name__ == '__main__':
 
     with Pool(n_cpus) as pool:
@@ -235,17 +272,30 @@ if __name__ == '__main__':
 
         # Run sampler
         V2_sampler2.run(V2_prior_samples2)
-        
+'''
+V2_sampler2 = pc.Sampler(V2_prior_samples2, 
+                         logLjoint2_skew, 
+                         n_dim=n_dim2,
+                         n_active=n_particles, 
+                         n_effective=None, 
+                         likelihood_args=[n1, n2, x, 3], 
+                         pool=n_cpus)
+
+V2_sampler2.run()
+
 # Get results
-V2_results2 = V2_sampler2.results
+# V2_results2 = V2_sampler2.results
+V2_results2_samples,_,_ = V2_sampler2.posterior(resample=True)
+V2_results2_logZ,_ = V2_sampler2.evidence()
 
 # Pickle results
-temp_outfile = open('pocoMC_results/sampler_results_M2_sSFR_V2-0p3.pickle', 
+temp_outfile = open('pocoMC_results/sampler_results_M2_sSFR_V2-20241108.pickle', 
                     'wb')
-pickle.dump((V2_results2), temp_outfile)
+# pickle.dump((V2_results2), temp_outfile)
+pickle.dump((V2_results2_samples, V2_results2_logZ), temp_outfile)
 temp_outfile.close()
 
-os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
+# os.system('play -nq -t alsa synth {} sine {}'.format(0.5, 440))
 
 exit()
 ################################################################################
